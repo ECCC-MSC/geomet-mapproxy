@@ -1,4 +1,4 @@
-name: Run flake8 against codebase ⚙️
+name: build ⚙️
 
 on: [ push, pull_request ]
 
