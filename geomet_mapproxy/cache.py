@@ -24,8 +24,8 @@ import shutil
 import click
 import yaml
 
-from geomet_mapproxy.cli_env import (GEOMET_MAPPROXY_CACHE_DATA,
-                                     GEOMET_MAPPROXY_CONFIG)
+from geomet_mapproxy.env import (GEOMET_MAPPROXY_CACHE_DATA,
+                                 GEOMET_MAPPROXY_CONFIG)
 from geomet_mapproxy import cli_options
 
 LOGGER = logging.getLogger(__name__)
@@ -58,18 +58,25 @@ def create(ctx):
 @click.pass_context
 @cli_options.OPTION_LAYERS
 @click.option('--force', '-f', 'force', is_flag=True, default=False,
-              help='Force deletion')
+              required=True, help='Force deletion')
 def clean(ctx, layers, force):
     """Clean cache directories"""
 
     to_delete = False
     dirs_to_delete = []
 
+    if layers is None:
+        raise click.ClickException('--layers must be "all" or a list')
+
     if force:
         to_delete = True
 
     if click.confirm('Continue?'):
         to_delete = True
+
+    if not to_delete:
+        click.echo('Exiting')
+        return
 
     if layers is not None:
         if layers == 'all':
@@ -82,10 +89,10 @@ def clean(ctx, layers, force):
             for ld in layer_dirs:
                 cache_layer = list(filter(lambda x: x['name'] == ld,
                                    yaml_config['layers']))
-                if cache_layer is not None:
+                if cache_layer:
                     LOGGER.debug('Found layer')
                     LOGGER.debug('Finding layer caches')
-                    caches = cache_layer['sources']
+                    caches = cache_layer[0]['sources']
                     for cache in caches:
                         grids = yaml_config['caches'][cache]['grids']
                         LOGGER.debug('Finding layer cache grids')
@@ -100,12 +107,13 @@ def clean(ctx, layers, force):
     if to_delete:
         click.echo('Removing cache directories')
         for dtd in dirs_to_delete:
-            click.echo('Deleting {}'.format(dtd))
-            shutil.rmtree(dtd)
+            if os.path.isdir(dtd):
+                click.echo('Deleting {}'.format(dtd))
+                shutil.rmtree(dtd)
 
         if not os.path.isdir(GEOMET_MAPPROXY_CACHE_DATA):
             click.echo('Recreating {}'.format(GEOMET_MAPPROXY_CACHE_DATA))
-            create(ctx)
+            ctx.invoke(create)
 
 
 cache.add_command(clean)

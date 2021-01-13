@@ -56,10 +56,13 @@ mapproxy-util serve-develop $GEOMET_MAPPROXY_CONFIG -b 0.0.0.0:8000
 geomet-mapproxy config update --layers=GDPS.ETA_TT,RADAR_1KM_RRAI
 
 # update all layers
-geomet-mapproxy config update --layers=all
+geomet-mapproxy config update
 
 # delete cache for specific layers
 geomet-mapproxy cache clean --layers=GDPS.ETA_TT,RADAR_1KM_RRAI
+
+# delete cache for specific layers, bypassing confirmation
+geomet-mapproxy cache clean --layers=GDPS.ETA_TT,RADAR_1KM_RRAI --force
 ```
 
 ## Development

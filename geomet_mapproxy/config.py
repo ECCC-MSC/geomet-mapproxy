@@ -19,6 +19,7 @@
 
 import logging
 import os
+import shutil
 
 import click
 
@@ -29,6 +30,32 @@ from geomet_mapproxy.env import (GEOMET_MAPPROXY_CACHE_CONFIG,
 LOGGER = logging.getLogger(__name__)
 
 TMP_FILE = os.path.join(GEOMET_MAPPROXY_TMP, 'geomet-mapproxy-config.yml')
+
+
+def create_initial_mapproxy_config():
+    """
+    Creates initial MapProxy configuration with current temporal information
+
+    :returns: `bool` of status result
+    """
+
+    # TODO: add implementation
+
+    return True
+
+
+def update_mapproxy_config(layers=[]):
+    """
+    Updates MapProxy configuration with current temporal information
+
+    :param layers: `list` of layer names
+
+    :returns: `bool` of status result
+    """
+
+    # TODO: add implementation
+
+    return True
 
 
 @click.group()
@@ -45,7 +72,12 @@ def create(ctx):
     click.echo('Creating {}'.format(TMP_FILE))
     click.echo('Reading from initial layer list ({})'.format(
        GEOMET_MAPPROXY_CACHE_CONFIG))
-    click.echo('Moving to {}'.format(GEOMET_MAPPROXY_CONFIG))
+
+    status = create_initial_mapproxy_config()
+
+    if status:
+        click.echo('Moving to {}'.format(GEOMET_MAPPROXY_CONFIG))
+        shutil.move(TMP_FILE, GEOMET_MAPPROXY_CONFIG)
 
 
 @click.command()
@@ -54,11 +86,20 @@ def create(ctx):
 def update(ctx, layers):
     """Update MapProxy configuration"""
 
+    if layers is None:
+        click.echo('Updating all layers')
+        ctx.invoke(create)
+        return
+
     click.echo('Reading {}'.format(GEOMET_MAPPROXY_CONFIG))
     layers_ = [x.strip() for x in layers.split(',')]
     click.echo('Updating layers {}'.format(layers_))
-    click.echo('Writing to {}'.format(TMP_FILE))
-    click.echo('Moving to {}'.format(GEOMET_MAPPROXY_CONFIG))
+
+    status = update_mapproxy_config(layers_)
+
+    if status:
+        click.echo('Moving to {}'.format(GEOMET_MAPPROXY_CONFIG))
+        shutil.move(TMP_FILE, GEOMET_MAPPROXY_CONFIG)
 
 
 config.add_command(create)

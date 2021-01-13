@@ -21,4 +21,4 @@ import click
 
 OPTION_LAYERS = click.option(
     '--layers', default=None,
-    help='CSV list of layer names ("all" for all layers)')
+    help='CSV list of layer names (layer1,layer2,...) or "all" for all layers')
