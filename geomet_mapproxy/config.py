@@ -47,8 +47,6 @@ def create(ctx):
        GEOMET_MAPPROXY_CACHE_CONFIG))
     click.echo('Moving to {}'.format(GEOMET_MAPPROXY_CONFIG))
 
-    pass
-
 
 @click.command()
 @click.pass_context
@@ -57,10 +55,10 @@ def update(ctx, layers):
     """Update MapProxy configuration"""
 
     click.echo('Reading {}'.format(GEOMET_MAPPROXY_CONFIG))
+    layers_ = [x.strip() for x in layers.split(',')]
+    click.echo('Updating layers {}'.format(layers_))
     click.echo('Writing to {}'.format(TMP_FILE))
     click.echo('Moving to {}'.format(GEOMET_MAPPROXY_CONFIG))
-
-    pass
 
 
 config.add_command(create)

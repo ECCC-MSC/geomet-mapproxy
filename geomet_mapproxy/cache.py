@@ -53,10 +53,11 @@ def create(ctx):
 @cli_options.OPTION_LAYERS
 @click.option('--force', '-f', 'force', is_flag=True, default=False,
               help='Force deletion')
-def clean(ctx, layer, force):
+def clean(ctx, layers, force):
     """Clean cache directories"""
 
     to_delete = False
+    dirs_to_delete = []
 
     if force:
         to_delete = True
@@ -64,17 +65,24 @@ def clean(ctx, layer, force):
     if click.confirm('Continue?'):
         to_delete = True
 
-    if layer is not None:
-        if layer == 'all':
-            layer_to_delete = GEOMET_MAPPROXY_CACHE_DATA
+    if layers is not None:
+        if layers == 'all':
+            dirs_to_delete = [GEOMET_MAPPROXY_CACHE_DATA]
         else:
-            layer_to_delete = os.path.join(GEOMET_MAPPROXY_CACHE_DATA, layer)
+            layer_dirs = [x.strip() for x in layers.split(',')]
+            # loop through each layer and fetch associated cache dir
+            # in GEOMET_MAPPROXY_CONFIG
+            for ld in layer_dirs:
+                ltd = os.path.join(GEOMET_MAPPROXY_CACHE_DATA, ld)
+                dirs_to_delete.append(ltd)
 
     if to_delete:
-        click.echo('Removing {}'.format(layer_to_delete))
-        shutil.rmtree(layer_to_delete)
+        click.echo('Removing cache directories')
+        for dtd in dirs_to_delete:
+            click.echo('Deleting {}'.format(dtd))
+            shutil.rmtree(dtd)
 
-        if layer_to_delete == GEOMET_MAPPROXY_CACHE_DATA:
+        if not os.path.isdir(GEOMET_MAPPROXY_CACHE_DATA):
             click.echo('Recreating {}'.format(GEOMET_MAPPROXY_CACHE_DATA))
             create(ctx)
 
