@@ -1,0 +1,5 @@
+geomet-mapproxy (0.1.0) bionic; urgency=medium
+
+  * initial Debian packaging
+
+ -- Tom Kralidis <tom.kralidis@canada.ca>  Tue, 12 Jan 2021 10:53:01 +0000

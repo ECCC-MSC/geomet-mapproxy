@@ -1,0 +1,4 @@
+deploy/default/geomet-mapproxy-config.yml opt/geomet-mapproxy/conf
+deploy/default/geomet-mapproxy-cache-config.yml opt/geomet-mapproxy/conf
+deploy/default/geomet-mapproxy.conf opt/geomet-mapproxy/etc/apache2
+deploy/default/geomet-mapproxy.wsgi opt/geomet-mapproxy/app

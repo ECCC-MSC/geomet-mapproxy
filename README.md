@@ -1,0 +1,94 @@
+# geomet-mapproxy
+
+## Overview
+
+MSC GeoMet MapProxy configuration management and orchestration
+
+## Installation
+
+### Requirements
+- Python 3
+- [virtualenv](https://virtualenv.pypa.io/)
+
+### Dependencies
+Dependencies are listed in [requirements.txt](requirements.txt). Dependencies
+are automatically installed during geomet-mapproxy installation.
+
+Dependencies of note:
+- [MapProxy (piensa dimensions branch)](https://github.com/piensa/MapProxy/tree/dimensions)
+
+### Installing geomet-mapproxy
+```bash
+# setup virtualenv
+python3 -m venv --system-site-packages geomet-mapproxy
+cd geomet-mapproxy
+source bin/activate
+
+# clone codebase and install
+git clone https://github.com/ECCC-MSC/geomet-mapproxy.git
+cd geomet-mapproxy
+python setup.py build
+python setup.py install
+
+# configure environment
+cp geomet-mapproxy.env dev.env
+vi dev.env # edit paths accordingly
+. dev.env
+```
+
+## Running
+
+```bash
+# create default cache directory
+geomet-mapproxy cache create
+
+# initialize default MapProxy configuration
+geomet-mapproxy config create
+
+# start MapProxy
+mapproxy-util serve-develop $GEOMET_MAPPROXY_CONFIG -b 0.0.0.0:8000
+
+# manage configuration and cache
+
+# update specific layers
+geomet-mapproxy config update --layers=GDPS.ETA_TT,RADAR_1KM_RRAI
+
+# update all layers
+geomet-mapproxy config update --layers=all
+
+# delete cache for specific layers
+geomet-mapproxy cache clean --layers=GDPS.ETA_TT,RADAR_1KM_RRAI
+```
+
+## Development
+
+### Running Tests
+
+```bash
+# install dev requirements
+pip install -r requirements-dev.txt
+
+# run tests like this:
+python geomet_mapproxy/tests/run_tests.py
+
+# or this:
+python setup.py test
+
+## Releasing
+
+```bash
+python setup.py sdist bdist_wheel --universal
+twine upload dist/*
+```
+
+### Code Conventions
+
+* [PEP8](https://www.python.org/dev/peps/pep-0008)
+
+### Bugs and Issues
+
+All bugs, enhancements and issues are managed on [GitHub](https://github.com/ECCC-MSC/geomet-mapproxy/issues).
+
+## Contact
+
+* [Tom Kralidis](https://github.com/tomkralidis)
