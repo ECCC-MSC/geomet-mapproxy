@@ -22,11 +22,17 @@ import os
 import shutil
 
 import click
+import yaml
 
-from geomet_mapproxy.cli_env import GEOMET_MAPPROXY_CACHE_DATA
+from geomet_mapproxy.cli_env import (GEOMET_MAPPROXY_CACHE_DATA,
+                                     GEOMET_MAPPROXY_CONFIG)
 from geomet_mapproxy import cli_options
 
 LOGGER = logging.getLogger(__name__)
+
+GRIDS_TO_EPSG_DIRNAMES = {
+    'GLOBAL_GEODETIC': 'EPSG4326'
+}
 
 
 @click.group()
@@ -70,11 +76,26 @@ def clean(ctx, layers, force):
             dirs_to_delete = [GEOMET_MAPPROXY_CACHE_DATA]
         else:
             layer_dirs = [x.strip() for x in layers.split(',')]
-            # loop through each layer and fetch associated cache dir
-            # in GEOMET_MAPPROXY_CONFIG
+            with open(GEOMET_MAPPROXY_CONFIG) as fh:
+                yaml_config = yaml.load(fh, Loader=yaml.SafeLoader)
+
             for ld in layer_dirs:
-                ltd = os.path.join(GEOMET_MAPPROXY_CACHE_DATA, ld)
-                dirs_to_delete.append(ltd)
+                cache_layer = list(filter(lambda x: x['name'] == ld,
+                                   yaml_config['layers']))
+                if cache_layer is not None:
+                    LOGGER.debug('Found layer')
+                    LOGGER.debug('Finding layer caches')
+                    caches = cache_layer['sources']
+                    for cache in caches:
+                        grids = yaml_config['caches'][cache]['grids']
+                        LOGGER.debug('Finding layer cache grids')
+                        for grid in grids:
+                            dirname = '{}_{}'.format(
+                                cache, GRIDS_TO_EPSG_DIRNAMES[grid])
+                            ltd = os.path.join(GEOMET_MAPPROXY_CACHE_DATA,
+                                               dirname)
+                            LOGGER.debug('Adding {} to delete'.format(ltd))
+                            dirs_to_delete.append(ltd)
 
     if to_delete:
         click.echo('Removing cache directories')

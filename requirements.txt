@@ -2,3 +2,4 @@ click
 lxml
 #-e https://github.com/piensa/MapProxy/archive/dimensions.zip
 OWSLib
+PyYAML
