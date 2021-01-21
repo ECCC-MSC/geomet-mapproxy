@@ -22,6 +22,7 @@ import os
 import shutil
 
 import click
+import yaml
 
 from geomet_mapproxy import cli_options
 from geomet_mapproxy.env import (GEOMET_MAPPROXY_CACHE_CONFIG,
@@ -32,30 +33,33 @@ LOGGER = logging.getLogger(__name__)
 TMP_FILE = os.path.join(GEOMET_MAPPROXY_TMP, 'geomet-mapproxy-config.yml')
 
 
-def create_initial_mapproxy_config():
+def create_initial_mapproxy_config(mapproxy_cache_config):
     """
     Creates initial MapProxy configuration with current temporal information
 
-    :returns: `bool` of status result
+    :param mapproxy_cache_config: `dict` of cache configuration
+
+    :returns: `dict` of new configuration
     """
 
     # TODO: add implementation
 
-    return True
+    return {}
 
 
-def update_mapproxy_config(layers=[]):
+def update_mapproxy_config(mapproxy_config, layers=[]):
     """
     Updates MapProxy configuration with current temporal information
 
+    :param mapproxy_config: `dict` of MapProxy configuration
     :param layers: `list` of layer names
 
-    :returns: `bool` of status result
+    :returns: `dict` of updated configuration
     """
 
     # TODO: add implementation
 
-    return True
+    return {}
 
 
 @click.group()
@@ -70,14 +74,24 @@ def create(ctx):
     """Create initial MapProxy configuration"""
 
     click.echo('Creating {}'.format(TMP_FILE))
+
     click.echo('Reading from initial layer list ({})'.format(
        GEOMET_MAPPROXY_CACHE_CONFIG))
 
-    status = create_initial_mapproxy_config()
+    with open(GEOMET_MAPPROXY_CACHE_CONFIG) as fh:
+        mapproxy_cache_config = yaml.load(fh, Loader=yaml.SafeLoader)
 
-    if status:
-        click.echo('Moving to {}'.format(GEOMET_MAPPROXY_CONFIG))
-        shutil.move(TMP_FILE, GEOMET_MAPPROXY_CONFIG)
+    try:
+        dict_ = create_initial_mapproxy_config(mapproxy_cache_config)
+        with open(GEOMET_MAPPROXY_CONFIG, 'wb') as fh:
+            fh.write(dict_)
+    except RuntimeError as err:
+        LOGGER.error(err)
+        raise click.ClickException('Error creating config: {}'.format(err))
+
+    click.echo('Moving to {}'.format(GEOMET_MAPPROXY_CONFIG))
+    shutil.move(TMP_FILE, GEOMET_MAPPROXY_CONFIG)
+    click.echo('Done')
 
 
 @click.command()
@@ -93,13 +107,24 @@ def update(ctx, layers):
 
     click.echo('Reading {}'.format(GEOMET_MAPPROXY_CONFIG))
     layers_ = [x.strip() for x in layers.split(',')]
+
     click.echo('Updating layers {}'.format(layers_))
+    try:
+        with open(GEOMET_MAPPROXY_CONFIG, 'rb') as fh:
+            mapproxy_config = yaml.load(fh, Loader=yaml.SafeLoader)
 
-    status = update_mapproxy_config(layers_)
+        dict_ = update_mapproxy_config(mapproxy_config, layers_)
 
-    if status:
+        with open(TMP_FILE, 'wb') as fh:
+            fh.write(dict_)
+
         click.echo('Moving to {}'.format(GEOMET_MAPPROXY_CONFIG))
         shutil.move(TMP_FILE, GEOMET_MAPPROXY_CONFIG)
+    except RuntimeError as err:
+        LOGGER.error(err)
+        raise click.ClickException('Error updating config: {}'.format(err))
+
+    click.echo('Done')
 
 
 config.add_command(create)
