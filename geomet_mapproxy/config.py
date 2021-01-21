@@ -33,11 +33,12 @@ LOGGER = logging.getLogger(__name__)
 TMP_FILE = os.path.join(GEOMET_MAPPROXY_TMP, 'geomet-mapproxy-config.yml')
 
 
-def create_initial_mapproxy_config(mapproxy_cache_config):
+def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
     """
     Creates initial MapProxy configuration with current temporal information
 
     :param mapproxy_cache_config: `dict` of cache configuration
+    :param mode: mode of deriving temporal properties
 
     :returns: `dict` of new configuration
     """
@@ -47,12 +48,13 @@ def create_initial_mapproxy_config(mapproxy_cache_config):
     return {}
 
 
-def update_mapproxy_config(mapproxy_config, layers=[]):
+def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
     """
     Updates MapProxy configuration with current temporal information
 
     :param mapproxy_config: `dict` of MapProxy configuration
     :param layers: `list` of layer names
+    :param mode: mode of deriving temporal properties
 
     :returns: `dict` of updated configuration
     """
@@ -70,7 +72,8 @@ def config():
 
 @click.command()
 @click.pass_context
-def create(ctx):
+@cli_options.OPTION_MODE
+def create(ctx, mode='wms'):
     """Create initial MapProxy configuration"""
 
     click.echo('Creating {}'.format(TMP_FILE))
@@ -82,7 +85,7 @@ def create(ctx):
         mapproxy_cache_config = yaml.load(fh, Loader=yaml.SafeLoader)
 
     try:
-        dict_ = create_initial_mapproxy_config(mapproxy_cache_config)
+        dict_ = create_initial_mapproxy_config(mapproxy_cache_config, mode)
         with open(GEOMET_MAPPROXY_CONFIG, 'wb') as fh:
             fh.write(dict_)
     except RuntimeError as err:
@@ -97,7 +100,8 @@ def create(ctx):
 @click.command()
 @click.pass_context
 @cli_options.OPTION_LAYERS
-def update(ctx, layers):
+@cli_options.OPTION_MODE
+def update(ctx, layers, mode='wms'):
     """Update MapProxy configuration"""
 
     if layers is None:
@@ -113,7 +117,7 @@ def update(ctx, layers):
         with open(GEOMET_MAPPROXY_CONFIG, 'rb') as fh:
             mapproxy_config = yaml.load(fh, Loader=yaml.SafeLoader)
 
-        dict_ = update_mapproxy_config(mapproxy_config, layers_)
+        dict_ = update_mapproxy_config(mapproxy_config, layers_, mode)
 
         with open(TMP_FILE, 'wb') as fh:
             fh.write(dict_)

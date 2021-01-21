@@ -22,3 +22,6 @@ import click
 OPTION_LAYERS = click.option(
     '--layers', default=None,
     help='CSV list of layer names (layer1,layer2,...) or "all" for all layers')
+OPTION_MODE = click.option(
+    '--mode', default='wms', type=click.Choice(['mapfile', 'wms', 'xml']),
+    help='mode of deriving temporal properties')
