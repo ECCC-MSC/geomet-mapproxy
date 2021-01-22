@@ -30,7 +30,6 @@ wms-server:
         CGSL.ETA_ICEC,
         GDPS.ETA_SN,
         RDPS.DIAG_NW_PT1H,
-        RDPA.6F_PR,
         GDPS.ETA_WD,
         RDPS.ETA_WGE,
         RDPS.ETA_PR,
