@@ -22,6 +22,7 @@ import os
 import shutil
 
 import click
+from owslib.wms import WebMapService
 import yaml
 
 from geomet_mapproxy import cli_options
@@ -42,10 +43,42 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
 
     :returns: `dict` of new configuration
     """
+    sources = {}
+    caches = {}
+    layers = []
+    c = mapproxy_cache_config
+    for layer in mapproxy_cache_config['wms-server']['layers']:
+        caches['{}_cache'.format(layer)] = {'grids': ['GLOBAL_GEODETIC'],
+                                            'sources':
+                                            ['{}_source'.format(layer)]}
+        sources['{}_source'.format(layer)] = {'forward_req_params':
+                                              ['time', 'dim_reference_time'],
+                                              'req': {'layers': layer,
+                                                      'transparent': True,
+                                                      'url': c['wms-server']
+                                                      ['url']},
+                                              'type': 'wms'}
+        if 'RADAR' in layer:
+            layers.append({'name': layer, 'title': layer, 'sources':
+                           ['{}_cache'.format(layer)],
+                           'dimensions': {'time': {'default': None,
+                                                   'values': []}}})
+        else:
+            layers.append({'name': layer, 'title': layer, 'sources':
+                           ['{}_cache'.format(layer)],
+                           'dimensions': {'time': {'default': None,
+                                                   'values': []},
+                                          'reference_time': {'default': None,
+                                                             'values': []}}})
 
-    # TODO: add implementation
-
-    return {}
+    dict_ = {'sources': sources, 'caches': caches, 'layers': layers,
+             'globals': None,
+             'services': {'demo': None,
+                          'wms': {'md': {'title': 'Canada Meteo Example'},
+                                  'versions': ['1.3.0']}}}
+    final_dict = update_mapproxy_config(dict_,
+                                        c['wms-server']['layers'], 'wms')
+    return final_dict
 
 
 def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
@@ -59,9 +92,30 @@ def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
     :returns: `dict` of updated configuration
     """
 
-    # TODO: add implementation
+    layers_to_update = {}
+    for layer in layers:
+        url = 'https://geo.weather.gc.ca/geomet?layer={}'.format(layer)
+        wms = WebMapService(url, version='1.3.0')
 
-    return {}
+        dimensions_list = ['time', 'reference_time']
+        for dimension in dimensions_list:
+            if dimension in wms[layer].dimensions.keys():
+                if layer not in layers_to_update.keys():
+                    layers_to_update[layer] = {}
+                layers_to_update[layer][dimension] = {
+                    'default': wms[layer].dimensions[dimension]['default'],
+                    'values': wms[layer].dimensions[dimension]['values']
+                }
+
+    for layer in mapproxy_config['layers']:
+        layer_name = layer['name']
+        if layer_name in layers_to_update:
+            for dim in layers_to_update[layer_name].keys():
+                layer['dimensions'][dim]['default'] = (
+                    layers_to_update[layer_name][dim]['default'])
+                layer['dimensions'][dim]['values'] = (
+                    layers_to_update[layer_name][dim]['values'])
+    return mapproxy_config
 
 
 @click.group()
@@ -86,8 +140,8 @@ def create(ctx, mode='wms'):
 
     try:
         dict_ = create_initial_mapproxy_config(mapproxy_cache_config, mode)
-        with open(GEOMET_MAPPROXY_CONFIG, 'wb') as fh:
-            fh.write(dict_)
+        with open(TMP_FILE, 'w') as fh:
+            yaml.dump(dict_, fh)
     except RuntimeError as err:
         LOGGER.error(err)
         raise click.ClickException('Error creating config: {}'.format(err))
@@ -119,8 +173,8 @@ def update(ctx, layers, mode='wms'):
 
         dict_ = update_mapproxy_config(mapproxy_config, layers_, mode)
 
-        with open(TMP_FILE, 'wb') as fh:
-            fh.write(dict_)
+        with open(TMP_FILE, 'w') as fh:
+            yaml.dump(dict_, fh)
 
         click.echo('Moving to {}'.format(GEOMET_MAPPROXY_CONFIG))
         shutil.move(TMP_FILE, GEOMET_MAPPROXY_CONFIG)
