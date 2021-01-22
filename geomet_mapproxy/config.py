@@ -27,7 +27,11 @@ import yaml
 
 from geomet_mapproxy import cli_options
 from geomet_mapproxy.env import (GEOMET_MAPPROXY_CACHE_CONFIG,
+                                 GEOMET_MAPPROXY_CACHE_MAPFILE,
+                                 GEOMET_MAPPROXY_CACHE_XML,
+                                 GEOMET_MAPPROXY_CACHE_WMS,
                                  GEOMET_MAPPROXY_CONFIG, GEOMET_MAPPROXY_TMP)
+from geomet_mapproxy.util import yaml_load
 
 LOGGER = logging.getLogger(__name__)
 
@@ -43,41 +47,80 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
 
     :returns: `dict` of new configuration
     """
+
     sources = {}
     caches = {}
     layers = []
-    c = mapproxy_cache_config
-    for layer in mapproxy_cache_config['wms-server']['layers']:
-        caches['{}_cache'.format(layer)] = {'grids': ['GLOBAL_GEODETIC'],
-                                            'sources':
-                                            ['{}_source'.format(layer)]}
-        sources['{}_source'.format(layer)] = {'forward_req_params':
-                                              ['time', 'dim_reference_time'],
-                                              'req': {'layers': layer,
-                                                      'transparent': True,
-                                                      'url': c['wms-server']
-                                                      ['url']},
-                                              'type': 'wms'}
-        if 'RADAR' in layer:
-            layers.append({'name': layer, 'title': layer, 'sources':
-                           ['{}_cache'.format(layer)],
-                           'dimensions': {'time': {'default': None,
-                                                   'values': []}}})
-        else:
-            layers.append({'name': layer, 'title': layer, 'sources':
-                           ['{}_cache'.format(layer)],
-                           'dimensions': {'time': {'default': None,
-                                                   'values': []},
-                                          'reference_time': {'default': None,
-                                                             'values': []}}})
 
-    dict_ = {'sources': sources, 'caches': caches, 'layers': layers,
-             'globals': None,
-             'services': {'demo': None,
-                          'wms': {'md': {'title': 'Canada Meteo Example'},
-                                  'versions': ['1.3.0']}}}
-    final_dict = update_mapproxy_config(dict_,
-                                        c['wms-server']['layers'], 'wms')
+    c = mapproxy_cache_config
+
+    LOGGER.debug('Building up configuration')
+    for layer in mapproxy_cache_config['wms-server']['layers']:
+        LOGGER.debug('Configuring layer: {}'.format(layer))
+        LOGGER.debug('Configuring layer caches')
+        caches['{}_cache'.format(layer)] = {
+            'grids': ['GLOBAL_GEODETIC'],
+            'sources': ['{}_source'.format(layer)]
+        }
+
+        LOGGER.debug('Configuring layer sources')
+        sources['{}_source'.format(layer)] = {
+            'forward_req_params': ['time', 'dim_reference_time'],
+            'req': {
+                'layers': layer,
+                'transparent': True,
+                'url': c['wms-server']['url']
+            },
+            'type': 'wms'
+        }
+
+        if 'RADAR' in layer:
+            layers.append({
+                'name': layer,
+                'title': layer,
+                'sources': ['{}_cache'.format(layer)],
+                'dimensions': {
+                    'time': {
+                        'default': None,
+                        'values': []
+                    }
+                }
+            })
+        else:
+            layers.append({
+                'name': layer,
+                'title': layer,
+                'sources': ['{}_cache'.format(layer)],
+                'dimensions': {
+                    'time': {
+                        'default': None,
+                        'values': []
+                    },
+                    'reference_time': {
+                        'default': None,
+                        'values': []
+                    }
+                }
+            })
+
+    dict_ = {
+        'sources': sources,
+        'caches': caches,
+        'layers': layers,
+        'globals': None,
+        'services': {
+            'demo': None,
+            'wms': {
+                'md': {
+                    'title': c['wms-server']['name']
+                },
+                'versions': ['1.1.1', '1.3.0']
+            }
+        }
+    }
+    final_dict = update_mapproxy_config(
+        dict_, c['wms-server']['layers'], 'wms')
+
     return final_dict
 
 
@@ -92,20 +135,72 @@ def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
     :returns: `dict` of updated configuration
     """
 
-    layers_to_update = {}
-    for layer in layers:
-        url = 'https://geo.weather.gc.ca/geomet?layer={}'.format(layer)
-        wms = WebMapService(url, version='1.3.0')
+    def from_wms(layers=[]):
+        """
+        Derives temporal information from a WMS
 
-        dimensions_list = ['time', 'reference_time']
-        for dimension in dimensions_list:
-            if dimension in wms[layer].dimensions.keys():
-                if layer not in layers_to_update.keys():
-                    layers_to_update[layer] = {}
-                layers_to_update[layer][dimension] = {
-                    'default': wms[layer].dimensions[dimension]['default'],
-                    'values': wms[layer].dimensions[dimension]['values']
-                }
+        :param layers:
+        :param layers: `list` of layer names
+
+        :returns: `dict` of layer temporal configuration
+        """
+
+        if GEOMET_MAPPROXY_CACHE_WMS is None:
+            raise RuntimeError('WMS not set')
+
+        ltu = {}
+        for layer in layers:
+            url = '{}?layer={}'.format(GEOMET_MAPPROXY_CACHE_WMS, layer)
+            wms = WebMapService(url, version='1.3.0')
+
+            dimensions_list = ['time', 'reference_time']
+            for dimension in dimensions_list:
+                if dimension in wms[layer].dimensions.keys():
+                    if layer not in ltu.keys():
+                        ltu[layer] = {}
+                    ltu[layer][dimension] = {
+                        'default': wms[layer].dimensions[dimension]['default'],
+                        'values': wms[layer].dimensions[dimension]['values']
+                    }
+
+        return ltu
+
+    def from_mapfile(mapfile, layers):
+        """
+        Derives temporal information from a MapServer mapfile
+
+        :param mapfile: filepath to mapfile on disk
+        :param layers: `list` of layer names
+
+        :returns: `dict` of layer temporal configuration
+        """
+
+        if GEOMET_MAPPROXY_CACHE_MAPFILE is None:
+            raise RuntimeError('mapfile not set')
+
+        return {}
+
+    def from_xml(xml, layers):
+        """
+        Derives temporal information from a Capabilities XML file on disk
+
+        :param mapfile: filepath to Capabilities XML on disk
+        :param layers: `list` of layer names
+
+        :returns: `dict` of layer temporal configuration
+        """
+
+        if GEOMET_MAPPROXY_CACHE_XML is None:
+            raise RuntimeError('xml not set')
+
+        return {}
+
+    if mode == 'wms':
+        layers_to_update = from_wms(layers)
+    elif mode == 'xml':
+        layers_to_update = from_xml(layers)
+    elif mode == 'mapfile':
+        layers_to_update = from_mapfile(layers)
 
     for layer in mapproxy_config['layers']:
         layer_name = layer['name']
@@ -115,6 +210,7 @@ def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
                     layers_to_update[layer_name][dim]['default'])
                 layer['dimensions'][dim]['values'] = (
                     layers_to_update[layer_name][dim]['values'])
+
     return mapproxy_config
 
 
@@ -136,7 +232,7 @@ def create(ctx, mode='wms'):
        GEOMET_MAPPROXY_CACHE_CONFIG))
 
     with open(GEOMET_MAPPROXY_CACHE_CONFIG) as fh:
-        mapproxy_cache_config = yaml.load(fh, Loader=yaml.SafeLoader)
+        mapproxy_cache_config = yaml_load(fh)
 
     try:
         dict_ = create_initial_mapproxy_config(mapproxy_cache_config, mode)
@@ -169,7 +265,7 @@ def update(ctx, layers, mode='wms'):
     click.echo('Updating layers {}'.format(layers_))
     try:
         with open(GEOMET_MAPPROXY_CONFIG, 'rb') as fh:
-            mapproxy_config = yaml.load(fh, Loader=yaml.SafeLoader)
+            mapproxy_config = yaml_load(fh, Loader=yaml.SafeLoader)
 
         dict_ = update_mapproxy_config(mapproxy_config, layers_, mode)
 

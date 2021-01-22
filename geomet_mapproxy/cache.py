@@ -22,11 +22,11 @@ import os
 import shutil
 
 import click
-import yaml
 
+from geomet_mapproxy import cli_options
 from geomet_mapproxy.env import (GEOMET_MAPPROXY_CACHE_DATA,
                                  GEOMET_MAPPROXY_CONFIG)
-from geomet_mapproxy import cli_options
+from geomet_mapproxy.util import yaml_load
 
 LOGGER = logging.getLogger(__name__)
 
@@ -84,7 +84,7 @@ def clean(ctx, layers, force):
         else:
             layer_dirs = [x.strip() for x in layers.split(',')]
             with open(GEOMET_MAPPROXY_CONFIG) as fh:
-                yaml_config = yaml.load(fh, Loader=yaml.SafeLoader)
+                yaml_config = yaml_load(fh)
 
             for ld in layer_dirs:
                 cache_layer = list(filter(lambda x: x['name'] == ld,

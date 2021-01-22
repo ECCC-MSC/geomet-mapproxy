@@ -1,6 +1,6 @@
 wms-server:
     name: geomet-weather
-    url: https://geo.wxod-dev.cmc.ec.gc.ca/geomet
+    url: ${GEOMET_MAPPROXY_CACHE_WMS}
     layers: [
         RADAR_1KM_RRAI,
         RADAR_1KM_RDBR,
