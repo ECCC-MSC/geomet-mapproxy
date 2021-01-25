@@ -9,7 +9,8 @@ Vcs-Git: https://github.com/ECCC-MSC/geomet-mapproxy.git
 
 Package: geomet-mapproxy
 Architecture: all
-Depends: python3-click, python3-mapproxy, python3-lxml, python3-yaml
+Depends: python3-click, python3-mapproxy, python3-mappyfile, python3-lxml, python3-owslib, python3-yaml
 Homepage: https://github.com/ECCC-MSC/geomet-mapproxy
 Description: MSC GeoMet MapProxy configuration management and orchestration
  This service provides map acceleration services for weather, climate and
+ water data.
