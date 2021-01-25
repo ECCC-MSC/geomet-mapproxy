@@ -52,7 +52,6 @@ def from_wms(layers=[]):
     if GEOMET_MAPPROXY_CACHE_WMS is None:
         raise RuntimeError('WMS not set')
 
-    print("wms")
     ltu = {}
     for layer in layers:
         url = '{}?layer={}'.format(GEOMET_MAPPROXY_CACHE_WMS, layer)
@@ -84,7 +83,6 @@ def from_mapfile(layers):
     if GEOMET_MAPPROXY_CACHE_MAPFILE is None:
         raise RuntimeError('mapfile not set')
 
-    print("mapfile")
     ltu = {}
     all_layers = False
     if len(layers) == 0 or layers == 'all':
@@ -93,9 +91,10 @@ def from_mapfile(layers):
         f = mappyfile.open(filepath)
     for layer in layers:
         if not all_layers:
-            filepath = '{}/geomet-{}-en.map'.format(os.path.dirname(GEOMET_MAPPROXY_CACHE_MAPFILE), layer)
+            filepath = '{}/geomet-{}-en.map'.format(
+                os.path.dirname(GEOMET_MAPPROXY_CACHE_MAPFILE), layer)
             f = mappyfile.open(filepath)
-        
+
         if layer not in ltu.keys():
             ltu[layer] = {}
         if ('wms_timeextent' in f['layers'][0]['metadata'].keys()):
@@ -105,8 +104,10 @@ def from_mapfile(layers):
             }
         if ('wms_reference_time_default' in f['layers'][0]['metadata'].keys()):
             ltu[layer]['reference_time'] = {
-                'default': f['layers'][0]['metadata']['wms_reference_time_default'],
-                'values': [f['layers'][0]['metadata']['wms_reference_time_extent']]
+                'default':
+                    f['layers'][0]['metadata']['wms_reference_time_default'],
+                'values':
+                    [f['layers'][0]['metadata']['wms_reference_time_extent']]
             }
     return ltu
 
@@ -124,9 +125,7 @@ def from_xml(layers):
     if GEOMET_MAPPROXY_CACHE_XML is None:
         raise RuntimeError('xml not set')
 
-    print("XML")
     ltu = {}
-    print("2", GEOMET_MAPPROXY_CACHE_XML)
     with open(GEOMET_MAPPROXY_CACHE_XML, 'rb') as fh:
         buffer = fh.read()
 
@@ -145,7 +144,7 @@ def from_xml(layers):
     return ltu
 
 
-def create_initial_mapproxy_config(mapproxy_cache_config, mode='mapfile'):
+def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
     """
     Creates initial MapProxy configuration with current temporal information
 
@@ -161,7 +160,6 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='mapfile'):
 
     c = mapproxy_cache_config
 
-    print("3", GEOMET_MAPPROXY_CACHE_XML)
     LOGGER.debug('Building up configuration')
     for layer in mapproxy_cache_config['wms-server']['layers']:
         LOGGER.debug('Configuring layer: {}'.format(layer))
@@ -232,7 +230,7 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='mapfile'):
     return final_dict
 
 
-def update_mapproxy_config(mapproxy_config, layers=[], mode='mapfile'):
+def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
     """
     Updates MapProxy configuration with current temporal information
 
@@ -271,7 +269,7 @@ def config():
 @click.command()
 @click.pass_context
 @cli_options.OPTION_MODE
-def create(ctx, mode='mapfile'):
+def create(ctx, mode='wms'):
     """Create initial MapProxy configuration"""
 
     click.echo('Creating {}'.format(TMP_FILE))
@@ -283,7 +281,6 @@ def create(ctx, mode='mapfile'):
         mapproxy_cache_config = yaml_load(fh)
 
     try:
-        click.echo( GEOMET_MAPPROXY_CACHE_XML)
         dict_ = create_initial_mapproxy_config(mapproxy_cache_config, mode)
         with open(TMP_FILE, 'w') as fh:
             yaml.dump(dict_, fh)
@@ -300,7 +297,7 @@ def create(ctx, mode='mapfile'):
 @click.pass_context
 @cli_options.OPTION_LAYERS
 @cli_options.OPTION_MODE
-def update(ctx, layers, mode='mapfile'):
+def update(ctx, layers, mode='wms'):
     """Update MapProxy configuration"""
 
     if layers is None:
@@ -316,7 +313,6 @@ def update(ctx, layers, mode='mapfile'):
         with open(GEOMET_MAPPROXY_CONFIG, 'rb') as fh:
             mapproxy_config = yaml_load(fh)
 
-        print("1", GEOMET_MAPPROXY_CACHE_XML)
         dict_ = update_mapproxy_config(mapproxy_config, layers_, mode)
 
         with open(TMP_FILE, 'w') as fh:
