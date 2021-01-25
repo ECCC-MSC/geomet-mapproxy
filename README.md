@@ -52,11 +52,23 @@ mapproxy-util serve-develop $GEOMET_MAPPROXY_CONFIG -b 0.0.0.0:8000
 
 # manage configuration and cache
 
-# update specific layers
+# update specific layers from WMS endpoint (default)
 geomet-mapproxy config update --layers=GDPS.ETA_TT,RADAR_1KM_RRAI
 
-# update all layers
+# update all layers from WMS endpoint (default)
 geomet-mapproxy config update
+
+# update specific layers from mapfile on disk
+geomet-mapproxy config update --layers=GDPS.ETA_TT,RADAR_1KM_RRAI --mode=mapfile
+
+# update all layers from mapfile on disk
+geomet-mapproxy config update
+
+# update specific layers from Capabilities XML file on disk
+geomet-mapproxy config update --layers=GDPS.ETA_TT,RADAR_1KM_RRAI --mode=xml
+
+# update all layers from Capabilities XML file on disk
+geomet-mapproxy config update --mode=xml
 
 # delete cache for specific layers
 geomet-mapproxy cache clean --layers=GDPS.ETA_TT,RADAR_1KM_RRAI
