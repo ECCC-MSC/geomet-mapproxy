@@ -22,6 +22,7 @@ import os
 import shutil
 
 import click
+import mappyfile
 from owslib.wms import WebMapService
 import yaml
 
@@ -51,6 +52,7 @@ def from_wms(layers=[]):
     if GEOMET_MAPPROXY_CACHE_WMS is None:
         raise RuntimeError('WMS not set')
 
+    print("wms")
     ltu = {}
     for layer in layers:
         url = '{}?layer={}'.format(GEOMET_MAPPROXY_CACHE_WMS, layer)
@@ -83,7 +85,30 @@ def from_mapfile(layers):
         raise RuntimeError('mapfile not set')
 
     print("mapfile")
-    return {}
+    ltu = {}
+    all_layers = False
+    if len(layers) == 0 or layers == 'all':
+        filepath = GEOMET_MAPPROXY_CACHE_MAPFILE
+        all_layers = True
+        f = mappyfile.open(filepath)
+    for layer in layers:
+        if not all_layers:
+            filepath = '{}/geomet-{}-en.map'.format(os.path.dirname(GEOMET_MAPPROXY_CACHE_MAPFILE), layer)
+            f = mappyfile.open(filepath)
+        
+        if layer not in ltu.keys():
+            ltu[layer] = {}
+        if ('wms_timeextent' in f['layers'][0]['metadata'].keys()):
+            ltu[layer]['time'] = {
+                'default': f['layers'][0]['metadata']['wms_timedefault'],
+                'values': [f['layers'][0]['metadata']['wms_timeextent']]
+            }
+        if ('wms_reference_time_default' in f['layers'][0]['metadata'].keys()):
+            ltu[layer]['reference_time'] = {
+                'default': f['layers'][0]['metadata']['wms_reference_time_default'],
+                'values': [f['layers'][0]['metadata']['wms_reference_time_extent']]
+            }
+    return ltu
 
 
 def from_xml(layers):
@@ -100,10 +125,27 @@ def from_xml(layers):
         raise RuntimeError('xml not set')
 
     print("XML")
-    return {}
+    ltu = {}
+    print("2", GEOMET_MAPPROXY_CACHE_XML)
+    with open(GEOMET_MAPPROXY_CACHE_XML, 'rb') as fh:
+        buffer = fh.read()
+
+        wms = WebMapService('url', version='1.3.0', xml=buffer)
+
+        for layer in layers:
+            dimensions_list = ['time', 'reference_time']
+            for dimension in dimensions_list:
+                if dimension in wms[layer].dimensions.keys():
+                    if layer not in ltu.keys():
+                        ltu[layer] = {}
+                    ltu[layer][dimension] = {
+                        'default': wms[layer].dimensions[dimension]['default'],
+                        'values': wms[layer].dimensions[dimension]['values']
+                    }
+    return ltu
 
 
-def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
+def create_initial_mapproxy_config(mapproxy_cache_config, mode='mapfile'):
     """
     Creates initial MapProxy configuration with current temporal information
 
@@ -119,6 +161,7 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
 
     c = mapproxy_cache_config
 
+    print("3", GEOMET_MAPPROXY_CACHE_XML)
     LOGGER.debug('Building up configuration')
     for layer in mapproxy_cache_config['wms-server']['layers']:
         LOGGER.debug('Configuring layer: {}'.format(layer))
@@ -189,7 +232,7 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
     return final_dict
 
 
-def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
+def update_mapproxy_config(mapproxy_config, layers=[], mode='mapfile'):
     """
     Updates MapProxy configuration with current temporal information
 
@@ -228,7 +271,7 @@ def config():
 @click.command()
 @click.pass_context
 @cli_options.OPTION_MODE
-def create(ctx, mode='wms'):
+def create(ctx, mode='mapfile'):
     """Create initial MapProxy configuration"""
 
     click.echo('Creating {}'.format(TMP_FILE))
@@ -240,6 +283,7 @@ def create(ctx, mode='wms'):
         mapproxy_cache_config = yaml_load(fh)
 
     try:
+        click.echo( GEOMET_MAPPROXY_CACHE_XML)
         dict_ = create_initial_mapproxy_config(mapproxy_cache_config, mode)
         with open(TMP_FILE, 'w') as fh:
             yaml.dump(dict_, fh)
@@ -256,12 +300,12 @@ def create(ctx, mode='wms'):
 @click.pass_context
 @cli_options.OPTION_LAYERS
 @cli_options.OPTION_MODE
-def update(ctx, layers, mode='wms'):
+def update(ctx, layers, mode='mapfile'):
     """Update MapProxy configuration"""
 
     if layers is None:
         click.echo('Updating all layers')
-        ctx.invoke(create)
+        ctx.invoke(create, mode=mode)
         return
 
     click.echo('Reading {}'.format(GEOMET_MAPPROXY_CONFIG))
@@ -270,8 +314,9 @@ def update(ctx, layers, mode='wms'):
     click.echo('Updating layers {}'.format(layers_))
     try:
         with open(GEOMET_MAPPROXY_CONFIG, 'rb') as fh:
-            mapproxy_config = yaml_load(fh, Loader=yaml.SafeLoader)
+            mapproxy_config = yaml_load(fh)
 
+        print("1", GEOMET_MAPPROXY_CACHE_XML)
         dict_ = update_mapproxy_config(mapproxy_config, layers_, mode)
 
         with open(TMP_FILE, 'w') as fh:
