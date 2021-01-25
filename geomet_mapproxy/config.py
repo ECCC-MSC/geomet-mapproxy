@@ -50,10 +50,11 @@ def from_wms(layers=[]):
     """
 
     if GEOMET_MAPPROXY_CACHE_WMS is None:
-        raise RuntimeError('WMS not set')
+        raise RuntimeError('GEOMET_MAPPROXY_CACHE_WMS not set')
 
     ltu = {}
     for layer in layers:
+        LOGGER.debug('Requesting WMS Capabilities for layer: {}'.format(layer))
         url = '{}?layer={}'.format(GEOMET_MAPPROXY_CACHE_WMS, layer)
         wms = WebMapService(url, version='1.3.0')
 
@@ -81,14 +82,16 @@ def from_mapfile(layers):
     """
 
     if GEOMET_MAPPROXY_CACHE_MAPFILE is None:
-        raise RuntimeError('mapfile not set')
+        raise RuntimeError('GEOMET_MAPPROXY_CACHE_MAPFILE not set')
 
     ltu = {}
     all_layers = False
+
     if len(layers) == 0 or layers == 'all':
-        filepath = GEOMET_MAPPROXY_CACHE_MAPFILE
+        LOGGER.debug('Processing all layers')
         all_layers = True
-        f = mappyfile.open(filepath)
+        f = mappyfile.open(GEOMET_MAPPROXY_CACHE_MAPFILE)
+
     for layer in layers:
         if not all_layers:
             filepath = '{}/geomet-{}-en.map'.format(
@@ -97,6 +100,7 @@ def from_mapfile(layers):
 
         if layer not in ltu.keys():
             ltu[layer] = {}
+
         if ('wms_timeextent' in f['layers'][0]['metadata'].keys()):
             ltu[layer]['time'] = {
                 'default': f['layers'][0]['metadata']['wms_timedefault'],
@@ -123,13 +127,14 @@ def from_xml(layers):
     """
 
     if GEOMET_MAPPROXY_CACHE_XML is None:
-        raise RuntimeError('xml not set')
+        raise RuntimeError('GEOMET_MAPPROXY_CACHE_XML not set')
 
     ltu = {}
-    with open(GEOMET_MAPPROXY_CACHE_XML, 'rb') as fh:
-        buffer = fh.read()
 
-        wms = WebMapService('url', version='1.3.0', xml=buffer)
+    with open(GEOMET_MAPPROXY_CACHE_XML, 'rb') as fh:
+        xml = fh.read()
+
+        wms = WebMapService('url', version='1.3.0', xml=xml)
 
         for layer in layers:
             dimensions_list = ['time', 'reference_time']
