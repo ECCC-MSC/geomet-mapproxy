@@ -90,12 +90,14 @@ def from_mapfile(layers):
     if len(layers) == 0 or layers == 'all':
         LOGGER.debug('Processing all layers')
         all_layers = True
+        LOGGER.debug('Reading global mapfile from disk')
         f = mappyfile.open(GEOMET_MAPPROXY_CACHE_MAPFILE)
 
     for layer in layers:
         if not all_layers:
             filepath = '{}/geomet-{}-en.map'.format(
                 os.path.dirname(GEOMET_MAPPROXY_CACHE_MAPFILE), layer)
+            LOGGER.debug('Reading layer mapfile from disk')
             f = mappyfile.open(filepath)
 
         if layer not in ltu.keys():
@@ -131,6 +133,7 @@ def from_xml(layers):
 
     ltu = {}
 
+    LOGGER.debug('Reading global WMS Capabilities XML from disk')
     with open(GEOMET_MAPPROXY_CACHE_XML, 'rb') as fh:
         xml = fh.read()
 
