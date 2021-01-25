@@ -38,6 +38,71 @@ LOGGER = logging.getLogger(__name__)
 TMP_FILE = os.path.join(GEOMET_MAPPROXY_TMP, 'geomet-mapproxy-config.yml')
 
 
+def from_wms(layers=[]):
+    """
+    Derives temporal information from a WMS
+
+    :param layers:
+    :param layers: `list` of layer names
+
+    :returns: `dict` of layer temporal configuration
+    """
+
+    if GEOMET_MAPPROXY_CACHE_WMS is None:
+        raise RuntimeError('WMS not set')
+
+    ltu = {}
+    for layer in layers:
+        url = '{}?layer={}'.format(GEOMET_MAPPROXY_CACHE_WMS, layer)
+        wms = WebMapService(url, version='1.3.0')
+
+        dimensions_list = ['time', 'reference_time']
+        for dimension in dimensions_list:
+            if dimension in wms[layer].dimensions.keys():
+                if layer not in ltu.keys():
+                    ltu[layer] = {}
+                ltu[layer][dimension] = {
+                    'default': wms[layer].dimensions[dimension]['default'],
+                    'values': wms[layer].dimensions[dimension]['values']
+                }
+
+    return ltu
+
+
+def from_mapfile(layers):
+    """
+    Derives temporal information from a MapServer mapfile
+
+    :param mapfile: filepath to mapfile on disk
+    :param layers: `list` of layer names
+
+    :returns: `dict` of layer temporal configuration
+    """
+
+    if GEOMET_MAPPROXY_CACHE_MAPFILE is None:
+        raise RuntimeError('mapfile not set')
+
+    print("mapfile")
+    return {}
+
+
+def from_xml(layers):
+    """
+    Derives temporal information from a Capabilities XML file on disk
+
+    :param mapfile: filepath to Capabilities XML on disk
+    :param layers: `list` of layer names
+
+    :returns: `dict` of layer temporal configuration
+    """
+
+    if GEOMET_MAPPROXY_CACHE_XML is None:
+        raise RuntimeError('xml not set')
+
+    print("XML")
+    return {}
+
+
 def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
     """
     Creates initial MapProxy configuration with current temporal information
@@ -119,7 +184,7 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
         }
     }
     final_dict = update_mapproxy_config(
-        dict_, c['wms-server']['layers'], 'wms')
+        dict_, c['wms-server']['layers'], mode)
 
     return final_dict
 
@@ -134,66 +199,6 @@ def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
 
     :returns: `dict` of updated configuration
     """
-
-    def from_wms(layers=[]):
-        """
-        Derives temporal information from a WMS
-
-        :param layers:
-        :param layers: `list` of layer names
-
-        :returns: `dict` of layer temporal configuration
-        """
-
-        if GEOMET_MAPPROXY_CACHE_WMS is None:
-            raise RuntimeError('WMS not set')
-
-        ltu = {}
-        for layer in layers:
-            url = '{}?layer={}'.format(GEOMET_MAPPROXY_CACHE_WMS, layer)
-            wms = WebMapService(url, version='1.3.0')
-
-            dimensions_list = ['time', 'reference_time']
-            for dimension in dimensions_list:
-                if dimension in wms[layer].dimensions.keys():
-                    if layer not in ltu.keys():
-                        ltu[layer] = {}
-                    ltu[layer][dimension] = {
-                        'default': wms[layer].dimensions[dimension]['default'],
-                        'values': wms[layer].dimensions[dimension]['values']
-                    }
-
-        return ltu
-
-    def from_mapfile(mapfile, layers):
-        """
-        Derives temporal information from a MapServer mapfile
-
-        :param mapfile: filepath to mapfile on disk
-        :param layers: `list` of layer names
-
-        :returns: `dict` of layer temporal configuration
-        """
-
-        if GEOMET_MAPPROXY_CACHE_MAPFILE is None:
-            raise RuntimeError('mapfile not set')
-
-        return {}
-
-    def from_xml(xml, layers):
-        """
-        Derives temporal information from a Capabilities XML file on disk
-
-        :param mapfile: filepath to Capabilities XML on disk
-        :param layers: `list` of layer names
-
-        :returns: `dict` of layer temporal configuration
-        """
-
-        if GEOMET_MAPPROXY_CACHE_XML is None:
-            raise RuntimeError('xml not set')
-
-        return {}
 
     if mode == 'wms':
         layers_to_update = from_wms(layers)

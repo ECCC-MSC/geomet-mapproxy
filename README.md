@@ -78,6 +78,7 @@ python geomet_mapproxy/tests/run_tests.py
 
 # or this:
 python setup.py test
+```
 
 ## Releasing
 
