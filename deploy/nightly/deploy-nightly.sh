@@ -22,17 +22,16 @@ BASEDIR=/data/web/geomet-mapproxy-nightly
 MAPPROXY_GITREPO="https://github.com/piensa/mapproxy.git -b dimensions"
 GEOMET_MAPPROXY_GITREPO=https://github.com/ECCC-MSC/geomet-mapproxy.git
 DAYSTOKEEP=7
-MSC_PYGEOAPI_OGC_API_URL=https://geomet-dev-03-nightly.cmc.ec.gc.ca/geomet-mapproxy-nightly/latest
+GEOMET_MAPPROXY_URL=https://geomet-dev-03-nightly.cmc.ec.gc.ca/geomet-mapproxy-nightly/latest/service
 
 cat >$BASEDIR/geomet-mapproxy-nightly.env <<EOL
 export GEOMET_MAPPROXY_LOGGING_LOGLEVEL=DEBUG
 export GEOMET_MAPPROXY_LOGGING_LOGFILE=stdout
-
 export GEOMET_MAPPROXY_CACHE_DATA=$BASEDIR/cache_data
 export GEOMET_MAPPROXY_CACHE_WMS=https://geo.wxod-dev.cmc.ec.gc.ca/geomet
 export GEOMET_MAPPROXY_CACHE_MAPFILE=/opt/geomet/conf/geomet-en.map
 export GEOMET_MAPPROXY_CACHE_XML=/opt/geomet/conf/geomet-wms-1.3.0-capabilities-en.xml
-export GEOMET_MAPPROXY_URL=$MSC_PYGEOAPI_OGC_API_URL
+export GEOMET_MAPPROXY_URL=$GEOMET_MAPPROXY_URL
 export GEOMET_MAPPROXY_CONFIG=$BASEDIR/geomet-mapproxy-config.yml
 export GEOMET_MAPPROXY_CACHE_CONFIG=$BASEDIR/latest/geomet-mapproxy/deploy/default/geomet-mapproxy-cache-config.yml
 export GEOMET_MAPPROXY_TMP=/tmp
