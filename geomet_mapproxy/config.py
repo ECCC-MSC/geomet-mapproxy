@@ -185,7 +185,10 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
                 'transparent': True,
                 'url': c['wms-server']['url']
             },
-            'type': 'wms'
+            'type': 'wms',
+            'wms_opts': {
+                'featureinfo_format': 'application/vnd.ogc.gml'
+            }
         }
 
         if 'RADAR' in layer:
