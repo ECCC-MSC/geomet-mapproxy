@@ -71,7 +71,7 @@ def clean(ctx, layers, force):
     if force:
         to_delete = True
 
-    if click.confirm('Continue?'):
+    if not force and click.confirm('Continue?'):
         to_delete = True
 
     if not to_delete:
