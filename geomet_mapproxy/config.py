@@ -28,6 +28,7 @@ import yaml
 
 from geomet_mapproxy import cli_options
 from geomet_mapproxy.env import (GEOMET_MAPPROXY_CACHE_CONFIG,
+                                 GEOMET_MAPPROXY_CACHE_DATA,
                                  GEOMET_MAPPROXY_CACHE_MAPFILE,
                                  GEOMET_MAPPROXY_CACHE_XML,
                                  GEOMET_MAPPROXY_CACHE_WMS,
@@ -187,7 +188,8 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
             },
             'type': 'wms',
             'wms_opts': {
-                'featureinfo_format': 'application/vnd.ogc.gml'
+                'featureinfo_format': 'application/vnd.ogc.gml',
+                'legendgraphic': True
             }
         }
 
@@ -224,14 +226,18 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
         'sources': sources,
         'caches': caches,
         'layers': layers,
-        'globals': None,
+        'globals': {
+            'cache': {
+                'base_dir': GEOMET_MAPPROXY_CACHE_DATA,
+            }
+        },
         'services': {
             'demo': None,
             'wms': {
                 'md': {
                     'title': c['wms-server']['name']
                 },
-                'versions': ['1.1.1', '1.3.0']
+                'versions': ['1.3.0', '1.1.1']
             }
         }
     }
