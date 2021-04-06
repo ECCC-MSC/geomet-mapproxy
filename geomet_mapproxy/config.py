@@ -55,7 +55,8 @@ def from_wms(layers=[]):
 
     ltu = {}
     for layer in layers:
-        LOGGER.debug('Requesting WMS Capabilities for layer: {}'.format(layer['name']))
+        LOGGER.debug('Requesting WMS Capabilities for layer: {}'.format(
+            layer['name']))
         url = '{}?layer={}'.format(GEOMET_MAPPROXY_CACHE_WMS, layer['name'])
         wms = WebMapService(url, version='1.3.0')
 
@@ -65,8 +66,10 @@ def from_wms(layers=[]):
                 if layer['name'] not in ltu.keys():
                     ltu[layer['name']] = {}
                 ltu[layer['name']][dimension] = {
-                    'default': wms[layer['name']].dimensions[dimension]['default'],
-                    'values': wms[layer['name']].dimensions[dimension]['values']
+                    'default':
+                        wms[layer['name']].dimensions[dimension]['default'],
+                    'values':
+                        wms[layer['name']].dimensions[dimension]['values']
                 }
     return ltu
 
@@ -146,8 +149,11 @@ def from_xml(layers):
                     if layer['name'] not in ltu.keys():
                         ltu[layer['name']] = {}
                     ltu[layer['name']][dimension] = {
-                        'default': wms[layer['name']].dimensions[dimension]['default'],
-                        'values': wms[layer['name']].dimensions[dimension]['values']
+                        'default':
+                            wms[layer['name']].
+                            dimensions[dimension]['default'],
+                        'values':
+                            wms[layer['name']].dimensions[dimension]['values']
                     }
     return ltu
 
@@ -172,7 +178,8 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
     for layer in mapproxy_cache_config['wms-server']['layers']:
         layer['styles'].append("default")
         for style in layer['styles']:
-            LOGGER.debug('Configuring layer: {}_{}'.format(layer['name'], style))
+            LOGGER.debug('Configuring layer: {}_{}'.format(
+                layer['name'], style))
             LOGGER.debug('Configuring layer caches')
             caches['{}_cache_{}'.format(layer['name'], style)] = {
                 'grids': ['GLOBAL_GEODETIC'],
@@ -249,6 +256,7 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
         dict_, c['wms-server']['layers'], mode)
 
     return final_dict
+
 
 def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
     """
