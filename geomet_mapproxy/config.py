@@ -54,20 +54,19 @@ def from_wms(layers=[]):
 
     ltu = {}
     for layer in layers:
-        LOGGER.debug('Requesting WMS Capabilities for layer: {}'.format(layer))
-        url = '{}?layer={}'.format(GEOMET_MAPPROXY_CACHE_WMS, layer)
+        LOGGER.debug('Requesting WMS Capabilities for layer: {}'.format(layer['name']))
+        url = '{}?layer={}'.format(GEOMET_MAPPROXY_CACHE_WMS, layer['name'])
         wms = WebMapService(url, version='1.3.0')
 
         dimensions_list = ['time', 'reference_time']
         for dimension in dimensions_list:
-            if dimension in wms[layer].dimensions.keys():
-                if layer not in ltu.keys():
-                    ltu[layer] = {}
-                ltu[layer][dimension] = {
-                    'default': wms[layer].dimensions[dimension]['default'],
-                    'values': wms[layer].dimensions[dimension]['values']
+            if dimension in wms[layer['name']].dimensions.keys():
+                if layer['name'] not in ltu.keys():
+                    ltu[layer['name']] = {}
+                ltu[layer['name']][dimension] = {
+                    'default': wms[layer['name']].dimensions[dimension]['default'],
+                    'values': wms[layer['name']].dimensions[dimension]['values']
                 }
-
     return ltu
 
 
@@ -96,20 +95,20 @@ def from_mapfile(layers):
     for layer in layers:
         if not all_layers:
             filepath = '{}/geomet-{}-en.map'.format(
-                os.path.dirname(GEOMET_MAPPROXY_CACHE_MAPFILE), layer)
+                os.path.dirname(GEOMET_MAPPROXY_CACHE_MAPFILE), layer['name'])
             LOGGER.debug('Reading layer mapfile from disk')
             f = mappyfile.open(filepath)
 
-        if layer not in ltu.keys():
-            ltu[layer] = {}
+        if layer['name'] not in ltu.keys():
+            ltu[layer['name']] = {}
 
         if ('wms_timeextent' in f['layers'][0]['metadata'].keys()):
-            ltu[layer]['time'] = {
+            ltu[layer['name']]['time'] = {
                 'default': f['layers'][0]['metadata']['wms_timedefault'],
                 'values': [f['layers'][0]['metadata']['wms_timeextent']]
             }
         if ('wms_reference_time_default' in f['layers'][0]['metadata'].keys()):
-            ltu[layer]['reference_time'] = {
+            ltu[layer['name']]['reference_time'] = {
                 'default':
                     f['layers'][0]['metadata']['wms_reference_time_default'],
                 'values':
@@ -142,12 +141,12 @@ def from_xml(layers):
         for layer in layers:
             dimensions_list = ['time', 'reference_time']
             for dimension in dimensions_list:
-                if dimension in wms[layer].dimensions.keys():
-                    if layer not in ltu.keys():
-                        ltu[layer] = {}
-                    ltu[layer][dimension] = {
-                        'default': wms[layer].dimensions[dimension]['default'],
-                        'values': wms[layer].dimensions[dimension]['values']
+                if dimension in wms[layer['name']].dimensions.keys():
+                    if layer['name'] not in ltu.keys():
+                        ltu[layer['name']] = {}
+                    ltu[layer['name']][dimension] = {
+                        'default': wms[layer['name']].dimensions[dimension]['default'],
+                        'values': wms[layer['name']].dimensions[dimension]['values']
                     }
     return ltu
 
@@ -170,52 +169,57 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
 
     LOGGER.debug('Building up configuration')
     for layer in mapproxy_cache_config['wms-server']['layers']:
-        LOGGER.debug('Configuring layer: {}'.format(layer))
-        LOGGER.debug('Configuring layer caches')
-        caches['{}_cache'.format(layer)] = {
-            'grids': ['GLOBAL_GEODETIC'],
-            'sources': ['{}_source'.format(layer)]
-        }
+        layer['styles'].append("default")
+        for style in layer['styles']:
+            LOGGER.debug('Configuring layer: {}_{}'.format(layer['name'], style))
+            LOGGER.debug('Configuring layer caches')
+            caches['{}_cache_{}'.format(layer['name'], style)] = {
+                'grids': ['GLOBAL_GEODETIC'],
+                'sources': ['{}_source_{}'.format(layer['name'], style)]
+            }
 
         LOGGER.debug('Configuring layer sources')
-        sources['{}_source'.format(layer)] = {
-            'forward_req_params': ['time', 'dim_reference_time'],
-            'req': {
-                'layers': layer,
-                'transparent': True,
-                'url': c['wms-server']['url']
-            },
-            'type': 'wms'
-        }
+        for style in layer['styles']:
+            sources['{}_source_{}'.format(layer['name'], style)] = {
+                'forward_req_params': ['time', 'dim_reference_time'],
+                'req': {
+                    'layers': layer['name'],
+                    'transparent': True,
+                    'url': c['wms-server']['url'],
+                    'styles': style
+                },
+                'type': 'wms'
+            }
 
-        if 'RADAR' in layer:
-            layers.append({
-                'name': layer,
-                'title': layer,
-                'sources': ['{}_cache'.format(layer)],
-                'dimensions': {
-                    'time': {
-                        'default': None,
-                        'values': []
+        for style in layer['styles']:
+            if 'RADAR' in layer['name']:
+                layers.append({
+                    'name': "{}_{}".format(layer['name'], style),
+                    'title': "{}_{}".format(layer['name'], style),
+                    'sources': ['{}_cache_{}'.format(layer['name'], style)],
+                    'dimensions': {
+                        'time': {
+                            'default': None,
+                            'values': []
+                        }
                     }
-                }
-            })
-        else:
-            layers.append({
-                'name': layer,
-                'title': layer,
-                'sources': ['{}_cache'.format(layer)],
-                'dimensions': {
-                    'time': {
-                        'default': None,
-                        'values': []
-                    },
-                    'reference_time': {
-                        'default': None,
-                        'values': []
+                })
+            else:
+                layers.append({
+                    'name': "{}_{}".format(layer['name'], style),
+                    'title': "{}_{}".format(layer['name'], style),
+                    'sources': ['{}_cache_{}'.format(layer['name'], style)],
+                    'dimensions': {
+                        'time': {
+                            'default': None,
+                            'values': []
+                        },
+                        'reference_time': {
+                            'default': None,
+                            'values': []
+                        }
                     }
-                }
-            })
+                })
 
     dict_ = {
         'sources': sources,
@@ -237,7 +241,6 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
 
     return final_dict
 
-
 def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
     """
     Updates MapProxy configuration with current temporal information
@@ -257,13 +260,13 @@ def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
         layers_to_update = from_mapfile(layers)
 
     for layer in mapproxy_config['layers']:
-        layer_name = layer['name']
-        if layer_name in layers_to_update:
-            for dim in layers_to_update[layer_name].keys():
-                layer['dimensions'][dim]['default'] = (
-                    layers_to_update[layer_name][dim]['default'])
-                layer['dimensions'][dim]['values'] = (
-                    layers_to_update[layer_name][dim]['values'])
+        for key in layers_to_update.keys():
+            if key in layer['name']:
+                for dim in layers_to_update[key].keys():
+                    layer['dimensions'][dim]['default'] = (
+                        layers_to_update[key][dim]['default'])
+                    layer['dimensions'][dim]['values'] = (
+                        layers_to_update[key][dim]['values'])
 
     return mapproxy_config
 

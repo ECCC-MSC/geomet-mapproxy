@@ -1,43 +1,83 @@
 wms-server:
-    name: geomet-weather
-    url: ${GEOMET_MAPPROXY_CACHE_WMS}
-    layers: [
-        RADAR_1KM_RRAI,
-        RADAR_1KM_RDBR,
-        RADAR_1KM_RSNO,
-        RADAR_COVERAGE_RRAI,
-        GDPS.ETA_TT,
-        GDPS.ETA_UU,
-        GDPS.ETA_NT,
-        HRDPS.CONTINENTAL_TT,
-        HRDPS.CONTINENTAL_HR,
-        RADAR_COVERAGE_RRAI.INV,
-        HRDPS.CONTINENTAL_TD,
-        GDPS.ETA_RT,
-        HRDPS.CONTINENTAL_NT,
-        GDPS.ETA_SD,
-        HRDPS.CONTINENTAL_PR,
-        GDPS.ETA_PR,
-        GDPS.ETA_HR,
-        HRDPS.CONTINENTAL_WGE,
-        RDPS.ETA_SD,
-        HRDPS.CONTINENTAL.DIAG_PTYPE,
-        HRDPS.CONTINENTAL_PN-SLP,
-        RDPS.ETA_NT,
-        RDPS.ETA_SN,
-        GDPS.ETA_WSPD,
-        RDPS.ETA_TT,
-        CGSL.ETA_ICEC,
-        GDPS.ETA_SN,
-        RDPS.DIAG_NW_PT1H,
-        GDPS.ETA_WD,
-        RDPS.ETA_WGE,
-        RDPS.ETA_PR,
-        GDPS.ETA_RN,
-        GDPS.ETA_WGE,
-        RDPS.ETA_PN,
-        REPS.DIAG.3_PRMM.ERGE1,
-        REPS.DIAG.3_PRMM.ERGE5,
-        REPS.DIAG.3_PRMM.ERMEAN,
-        RDPS.ETA_RT
-    ]
+  name: weather
+  url: ${GEOMET_MAPPROXY_CACHE_WMS}
+  layers:
+    - name: RADAR_1KM_RRAI
+      styles: []
+    - name: RADAR_1KM_RDBR
+      styles: []
+    - name: RADAR_1KM_RSNO
+      styles: []
+    - name: RADAR_COVERAGE_RRAI
+      styles: []
+    - name: GDPS.ETA_TT
+      styles: []
+    - name: GDPS.ETA_UU
+      styles: []
+    - name: GDPS.ETA_NT
+      styles: []
+    - name: HRDPS.CONTINENTAL_TT
+      styles: []
+    - name: HRDPS.CONTINENTAL_HR
+      styles: []
+    - name: RADAR_COVERAGE_RRAI.INV
+      styles: []
+    - name: HRDPS.CONTINENTAL_TD
+      styles: []
+    - name: GDPS.ETA_RT
+      styles: []
+    - name: HRDPS.CONTINENTAL_NT
+      styles: []
+    - name: GDPS.ETA_SD
+      styles: []
+    - name: HRDPS.CONTINENTAL_PR
+      styles: []
+    - name: GDPS.ETA_PR
+      styles: []
+    - name: GDPS.ETA_HR
+      styles: []
+    - name: HRDPS.CONTINENTAL_WGE
+      styles: []
+    - name: RDPS.ETA_SD
+      styles: []
+    - name: HRDPS.CONTINENTAL.DIAG_PTYPE
+      styles: []
+    - name: HRDPS.CONTINENTAL_PN-SLP
+      styles: []
+    - name: RDPS.ETA_NT
+      styles: []
+    - name: RDPS.ETA_SN
+      styles: []
+    - name: GDPS.ETA_WSPD
+      styles: []
+    - name: RDPS.ETA_TT
+      styles: []
+    - name: CGSL.ETA_ICEC
+      styles: []
+    - name: GDPS.ETA_SN
+      styles: []
+    - name: RDPS.DIAG_NW_PT1H
+      styles: []
+    - name: GDPS.ETA_WD
+      styles: []
+    - name: RDPS.ETA_WGE
+      styles: []
+    - name: RDPS.ETA_PR
+      styles: []
+    - name: GDPS.ETA_RN
+      styles: []
+    - name: GDPS.ETA_WGE
+      styles: []
+    - name: RDPS.ETA_PN
+      styles: []
+    - name: REPS.DIAG.3_PRMM.ERGE1
+      styles: []
+    - name: REPS.DIAG.3_PRMM.ERGE5
+      styles: []
+    - name: REPS.DIAG.3_PRMM.ERMEAN
+      styles: []
+    - name: RDPS.ETA_RT
+      styles: []
+
+
+
