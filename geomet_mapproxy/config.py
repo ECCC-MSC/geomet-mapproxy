@@ -189,7 +189,8 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
             'type': 'wms',
             'wms_opts': {
                 'featureinfo_format': 'application/vnd.ogc.gml',
-                'legendgraphic': True
+                'legendgraphic': True,
+                'version': '1.3.0'
             }
         }
 
