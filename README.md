@@ -16,9 +16,6 @@ MSC GeoMet MapProxy configuration management and orchestration
 Dependencies are listed in [requirements.txt](requirements.txt). Dependencies
 are automatically installed during geomet-mapproxy installation.
 
-Dependencies of note:
-- [MapProxy (piensa dimensions branch)](https://github.com/piensa/MapProxy/tree/dimensions)
-
 ### Installing geomet-mapproxy
 ```bash
 # setup virtualenv
