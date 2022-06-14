@@ -1,6 +1,6 @@
 click
 lxml
 mappyfile
-#-e https://github.com/mapproxy/mapproxy/archive/master.zip
+mapproxy
 OWSLib
 PyYAML
