@@ -43,6 +43,7 @@
 #
 # =================================================================
 
+import os
 import sys
 
 from mapproxy.wsgiapp import make_wsgi_app
@@ -50,5 +51,7 @@ from mapproxy.wsgiapp import make_wsgi_app
 GEOMET_MAPPROXY_CONFIG = '/data/web/geomet-mapproxy-nightly/geomet-mapproxy-config.yml'
 
 sys.path.insert(0, '/data/web/geomet-mapproxy-nightly/latest/lib/python3.6/site-packages')  # noqa
+
+os.environ['MAPPROXY_CLIENT_USER_AGENT'] = 'geomet-mapproxy'
 
 application = make_wsgi_app(GEOMET_MAPPROXY_CONFIG, reloader=True)

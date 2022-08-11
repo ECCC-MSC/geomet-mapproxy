@@ -43,8 +43,11 @@
 #
 # =================================================================
 
+import os
 from mapproxy.wsgiapp import make_wsgi_app
 
 GEOMET_MAPPROXY_CONFIG = '/opt/geomet-mapproxy/geomet-mapproxy-config.yml'
+
+os.environ['MAPPROXY_CLIENT_USER_AGENT'] = 'geomet-mapproxy'
 
 application = make_wsgi_app(GEOMET_MAPPROXY_CONFIG, reloader=True)
