@@ -19,7 +19,7 @@
 # =================================================================
 
 BASEDIR=/data/web/geomet-mapproxy-nightly
-MAPPROXY_GITREPO=https://github.com/mapproxy/mapproxy.git
+MAPPROXY_GITREPO="https://github.com/ECCC-MSC/mapproxy.git -b user-agent"
 GEOMET_MAPPROXY_GITREPO=https://github.com/ECCC-MSC/geomet-mapproxy.git
 DAYSTOKEEP=7
 GEOMET_MAPPROXY_URL=https://geomet-dev-03-nightly.cmc.ec.gc.ca/geomet-mapproxy-nightly/latest/service
