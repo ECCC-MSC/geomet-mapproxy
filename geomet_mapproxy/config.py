@@ -230,6 +230,14 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
         'globals': {
             'cache': {
                 'base_dir': GEOMET_MAPPROXY_CACHE_DATA,
+            },
+            'http': {
+                'headers': {
+                    'User-agent': (
+                        'geomet-mapproxy '
+                        '(https://github.com/ECCC-MSC/geomet-mapproxy)'
+                    )
+                }
             }
         },
         'services': {
