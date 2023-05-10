@@ -27,12 +27,15 @@ from owslib.wms import WebMapService
 import yaml
 
 from geomet_mapproxy import cli_options
-from geomet_mapproxy.env import (GEOMET_MAPPROXY_CACHE_CONFIG,
-                                 GEOMET_MAPPROXY_CACHE_DATA,
-                                 GEOMET_MAPPROXY_CACHE_MAPFILE,
-                                 GEOMET_MAPPROXY_CACHE_XML,
-                                 GEOMET_MAPPROXY_CACHE_WMS,
-                                 GEOMET_MAPPROXY_CONFIG, GEOMET_MAPPROXY_TMP)
+from geomet_mapproxy.env import (
+    GEOMET_MAPPROXY_CACHE_CONFIG,
+    GEOMET_MAPPROXY_CACHE_DATA,
+    GEOMET_MAPPROXY_CACHE_MAPFILE,
+    GEOMET_MAPPROXY_CACHE_XML,
+    GEOMET_MAPPROXY_CACHE_WMS,
+    GEOMET_MAPPROXY_CONFIG,
+    GEOMET_MAPPROXY_TMP
+)
 from geomet_mapproxy.util import yaml_load
 
 LOGGER = logging.getLogger(__name__)
@@ -97,24 +100,27 @@ def from_mapfile(layers):
     for layer in layers:
         if not all_layers:
             filepath = '{}/geomet-{}-en.map'.format(
-                os.path.dirname(GEOMET_MAPPROXY_CACHE_MAPFILE), layer)
+                os.path.dirname(GEOMET_MAPPROXY_CACHE_MAPFILE), layer
+            )
             LOGGER.debug('Reading layer mapfile from disk')
             f = mappyfile.open(filepath)
 
         if layer not in ltu.keys():
             ltu[layer] = {}
 
-        if ('wms_timeextent' in f['layers'][0]['metadata'].keys()):
+        if 'wms_timeextent' in f['layers'][0]['metadata'].keys():
             ltu[layer]['time'] = {
                 'default': f['layers'][0]['metadata']['wms_timedefault'],
                 'values': [f['layers'][0]['metadata']['wms_timeextent']]
             }
-        if ('wms_reference_time_default' in f['layers'][0]['metadata'].keys()):
+        if 'wms_reference_time_default' in f['layers'][0]['metadata'].keys():
             ltu[layer]['reference_time'] = {
-                'default':
-                    f['layers'][0]['metadata']['wms_reference_time_default'],
-                'values':
-                    [f['layers'][0]['metadata']['wms_reference_time_extent']]
+                'default': f['layers'][0]['metadata'][
+                    'wms_reference_time_default'
+                ],
+                'values': [
+                    f['layers'][0]['metadata']['wms_reference_time_extent']
+                ]
             }
     return ltu
 
@@ -195,33 +201,26 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
         }
 
         if 'RADAR' in layer:
-            layers.append({
-                'name': layer,
-                'title': layer,
-                'sources': ['{}_cache'.format(layer)],
-                'dimensions': {
-                    'time': {
-                        'default': None,
-                        'values': []
-                    }
+            layers.append(
+                {
+                    'name': layer,
+                    'title': layer,
+                    'sources': ['{}_cache'.format(layer)],
+                    'dimensions': {'time': {'default': None, 'values': []}}
                 }
-            })
+            )
         else:
-            layers.append({
-                'name': layer,
-                'title': layer,
-                'sources': ['{}_cache'.format(layer)],
-                'dimensions': {
-                    'time': {
-                        'default': None,
-                        'values': []
-                    },
-                    'reference_time': {
-                        'default': None,
-                        'values': []
+            layers.append(
+                {
+                    'name': layer,
+                    'title': layer,
+                    'sources': ['{}_cache'.format(layer)],
+                    'dimensions': {
+                        'time': {'default': None, 'values': []},
+                        'reference_time': {'default': None, 'values': []}
                     }
                 }
-            })
+            )
 
     dict_ = {
         'sources': sources,
@@ -243,15 +242,12 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
         'services': {
             'demo': None,
             'wms': {
-                'md': {
-                    'title': c['wms-server']['name']
-                },
+                'md': {'title': c['wms-server']['name']},
                 'versions': ['1.3.0', '1.1.1']
             }
         }
     }
-    final_dict = update_mapproxy_config(
-        dict_, c['wms-server']['layers'], mode)
+    final_dict = update_mapproxy_config(dict_, c['wms-server']['layers'], mode)
 
     return final_dict
 
@@ -279,9 +275,11 @@ def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
         if layer_name in layers_to_update:
             for dim in layers_to_update[layer_name].keys():
                 layer['dimensions'][dim]['default'] = (
-                    layers_to_update[layer_name][dim]['default'])
+                    layers_to_update[layer_name][dim]['default']
+                )
                 layer['dimensions'][dim]['values'] = (
-                    layers_to_update[layer_name][dim]['values'])
+                    layers_to_update[layer_name][dim]['values']
+                )
 
     return mapproxy_config
 
@@ -300,8 +298,11 @@ def create(ctx, mode='wms'):
 
     click.echo('Creating {}'.format(TMP_FILE))
 
-    click.echo('Reading from initial layer list ({})'.format(
-       GEOMET_MAPPROXY_CACHE_CONFIG))
+    click.echo(
+        'Reading from initial layer list ({})'.format(
+            GEOMET_MAPPROXY_CACHE_CONFIG
+        )
+    )
 
     with open(GEOMET_MAPPROXY_CACHE_CONFIG) as fh:
         mapproxy_cache_config = yaml_load(fh)
