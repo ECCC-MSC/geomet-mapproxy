@@ -62,15 +62,13 @@ def from_wms(layers=[]):
         url = '{}?layer={}'.format(GEOMET_MAPPROXY_CACHE_WMS, layer)
         wms = WebMapService(url, version='1.3.0')
 
-        dimensions_list = ['time', 'reference_time']
-        for dimension in dimensions_list:
-            if dimension in wms[layer].dimensions.keys():
-                if layer not in ltu.keys():
-                    ltu[layer] = {}
-                ltu[layer][dimension] = {
-                    'default': wms[layer].dimensions[dimension]['default'],
-                    'values': wms[layer].dimensions[dimension]['values']
-                }
+        for dimension in wms[layer].dimensions.keys():
+            if layer not in ltu.keys():
+                ltu[layer] = {}
+            ltu[layer][dimension] = {
+                'default': wms[layer].dimensions[dimension]['default'],
+                'values': wms[layer].dimensions[dimension]['values']
+            }
 
     return ltu
 
@@ -147,15 +145,14 @@ def from_xml(layers):
         wms = WebMapService('url', version='1.3.0', xml=xml)
 
         for layer in layers:
-            dimensions_list = ['time', 'reference_time']
-            for dimension in dimensions_list:
-                if dimension in wms[layer].dimensions.keys():
-                    if layer not in ltu.keys():
-                        ltu[layer] = {}
-                    ltu[layer][dimension] = {
-                        'default': wms[layer].dimensions[dimension]['default'],
-                        'values': wms[layer].dimensions[dimension]['values']
-                    }
+            for dimension in wms[layer].dimensions.keys():
+                if layer not in ltu.keys():
+                    ltu[layer] = {}
+                ltu[layer][dimension] = {
+                    'default': wms[layer].dimensions[dimension]['default'],
+                    'values': wms[layer].dimensions[dimension]['values']
+                }
+
     return ltu
 
 
@@ -200,27 +197,13 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
             }
         }
 
-        if 'RADAR' in layer:
-            layers.append(
-                {
-                    'name': layer,
-                    'title': layer,
-                    'sources': ['{}_cache'.format(layer)],
-                    'dimensions': {'time': {'default': None, 'values': []}}
-                }
-            )
-        else:
-            layers.append(
-                {
-                    'name': layer,
-                    'title': layer,
-                    'sources': ['{}_cache'.format(layer)],
-                    'dimensions': {
-                        'time': {'default': None, 'values': []},
-                        'reference_time': {'default': None, 'values': []}
-                    }
-                }
-            )
+        layers.append(
+            {
+                'name': layer,
+                'title': layer,
+                'sources': ['{}_cache'.format(layer)],
+            }
+        )
 
     dict_ = {
         'sources': sources,
@@ -274,12 +257,14 @@ def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
         layer_name = layer['name']
         if layer_name in layers_to_update:
             for dim in layers_to_update[layer_name].keys():
-                layer['dimensions'][dim]['default'] = (
-                    layers_to_update[layer_name][dim]['default']
-                )
-                layer['dimensions'][dim]['values'] = (
-                    layers_to_update[layer_name][dim]['values']
-                )
+                if 'dimensions' not in layer.keys():
+                    layer['dimensions'] = {}
+                layer['dimensions'][dim] = {
+                    'default': layers_to_update[layer_name][dim]['default'],
+                }
+                layer['dimensions'][dim] = {
+                    'values': layers_to_update[layer_name][dim]['values']
+                }
 
     return mapproxy_config
 
