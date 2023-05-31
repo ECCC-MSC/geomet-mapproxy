@@ -27,5 +27,7 @@
 #
 # =================================================================
 
+# every minute, refresh geomet-mapproxy config with GeoMet-Weather cache XML
+* * * * * geoadm geomet-mapproxy config update --mode xml
 # every day at 0300h, clear cache
-0 3 * * * geoadm geomet-mapproxy cache clean --layers=RADAR_1KM_RRAI --force
+0 3 * * * geoadm geomet-mapproxy cache clean --layers=all --force
