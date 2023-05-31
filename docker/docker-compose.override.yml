@@ -1,0 +1,7 @@
+services:
+  geomet-mapproxy:
+    build:
+      args:
+        GEOMET_MAPPROXY_URL: https://geomet-dev-21-nightly.cmc.ec.gc.ca/geomet-mapproxy
+    ports:
+      - "5091:80"

@@ -1,0 +1,14 @@
+services:
+  geomet-mapproxy:
+    image: eccc-msc/geomet-mapproxy:nightly
+    container_name: geomet-mapproxy-nightly
+    restart: unless-stopped
+    build:
+        context: ..
+    hostname: geomet-dev-21-docker.cmc.ec.gc.ca
+    volumes:
+        - "/tmp:/tmp:rw"
+networks:
+  default:
+    name: geomet_default
+    driver: bridge
