@@ -26,8 +26,8 @@ source bin/activate
 # clone codebase and install
 git clone https://github.com/ECCC-MSC/geomet-mapproxy.git
 cd geomet-mapproxy
-python setup.py build
-python setup.py install
+python3 setup.py build
+python3 setup.py install
 
 # configure environment
 cp geomet-mapproxy.env dev.env
@@ -80,19 +80,19 @@ geomet-mapproxy cache clean --layers=GDPS.ETA_TT,RADAR_1KM_RRAI --force
 
 ```bash
 # install dev requirements
-pip install -r requirements-dev.txt
+pip3 install -r requirements-dev.txt
 
 # run tests like this:
-python geomet_mapproxy/tests/run_tests.py
+python3 geomet_mapproxy/tests/run_tests.py
 
 # or this:
-python setup.py test
+python3 setup.py test
 ```
 
 ## Releasing
 
 ```bash
-python setup.py sdist bdist_wheel --universal
+python3 setup.py sdist bdist_wheel --universal
 twine upload dist/*
 ```
 
