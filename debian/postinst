@@ -28,15 +28,7 @@
 #
 # =================================================================
 
-export GEOMET_MAPPROXY_LOGGING_LOGLEVEL=DEBUG
-export GEOMET_MAPPROXY_LOGGING_LOGFILE=stdout
-
-export GEOMET_MAPPROXY_CACHE_DATA=/data/geomet-mapproxy/cache_data
-export GEOMET_MAPPROXY_URL=https://geo.wxod-dev.cmc.ec.gc.ca/geomet-mapproxy
-export GEOMET_MAPPROXY_TMP=/tmp
-
-export GEOMET_MAPPROXY_CONFIG=/opt/geomet-mapproxy/conf/geomet-mapproxy-config.yml
-export GEOMET_MAPPROXY_CACHE_CONFIG=/opt/geomet-mapproxy/conf/geomet-mapproxy-cache-config.yml
+. ~www-data/.profile
 
 echo "Creating cache directory"
 mkdir -p $GEOMET_MAPPROXY_CACHE_DATA
