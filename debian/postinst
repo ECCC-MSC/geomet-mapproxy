@@ -38,12 +38,9 @@ export GEOMET_MAPPROXY_TMP=/tmp
 export GEOMET_MAPPROXY_CONFIG=/opt/geomet-mapproxy/conf/geomet-mapproxy-config.yml
 export GEOMET_MAPPROXY_CACHE_CONFIG=/opt/geomet-mapproxy/conf/geomet-mapproxy-cache-config.yml
 
-if [ -d $GEOMET_MAPPROXY_CACHE_DATA ]
-then
-    echo "Directory $GEOMET_MAPPROXY_CACHE_DATA exists"
-else
-    geomet-mapproxy cache create
-fi
+echo "Creating cache directory"
+mkdir -p $GEOMET_MAPPROXY_CACHE_DATA
+chmod 755 $GEOMET_MAPPROXY_CACHE_DATA
 
 if [ -d $GEOMET_MAPPROXY_CONFIG ]
 then
