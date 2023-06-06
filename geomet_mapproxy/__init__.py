@@ -36,7 +36,7 @@ from geomet_mapproxy.env import (
 from geomet_mapproxy.log import setup_logger
 
 
-__version__ = '0.1.1'
+__version__ = '0.2.dev0'
 
 setup_logger(GEOMET_MAPPROXY_LOGGING_LOGLEVEL, GEOMET_MAPPROXY_LOGGING_LOGFILE)
 
