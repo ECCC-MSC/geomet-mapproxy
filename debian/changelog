@@ -1,3 +1,15 @@
+geomet-mapproxy (0.1.2) focal; urgency=medium
+
+  * packaging fixes
+
+ -- Tom Kralidis <tom.kralidis@ec.gc.ca>  Thu, 08 Jun 2023 18:47:33 +0000
+
+geomet-mapproxy (0.1.1) focal; urgency=medium
+
+  * deployment updates
+
+ -- Tom Kralidis <tom.kralidis@ec.gc.ca>  Tue, 06 Jun 2023 15:36:26 +0000
+
 geomet-mapproxy (0.1.0) focal; urgency=medium
 
   * initial Debian packaging
