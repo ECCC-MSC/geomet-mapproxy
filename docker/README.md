@@ -13,7 +13,7 @@ docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.ym
 docker compose -f docker/docker-compose.yml -f docker/docker-compose.override.yml up -d
 ```
 
-# test geomet-mapproxy endpoint
+# test OGC WMS endpoint
 ```bash
 curl "http://geomet-dev-21.cmc.ec.gc.ca:5091/service?request=GetCapabilities"
 # or
