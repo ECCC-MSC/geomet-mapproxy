@@ -18,7 +18,7 @@
 # those files. Users are asked to read the 3rd Party Licenses
 # referenced with those assets.
 #
-# Copyright (c) 2021 Government of Canada
+# Copyright (c) 2023 Government of Canada
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -46,6 +46,6 @@
 import os
 from mapproxy.wsgiapp import make_wsgi_app
 
-GEOMET_MAPPROXY_CONFIG = '/opt/geomet-mapproxy/geomet-mapproxy-config.yml'
+GEOMET_MAPPROXY_CONFIG = '/opt/geomet-mapproxy/conf/geomet-mapproxy-config.yml'
 
 application = make_wsgi_app(GEOMET_MAPPROXY_CONFIG, reloader=True)
