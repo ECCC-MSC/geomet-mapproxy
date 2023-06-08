@@ -34,7 +34,7 @@ ARG GEOMET_MAPPROXY_URL=https://geomet-dev-21-nightly.cmc.ec.gc.ca/geomet-mappro
 
 ENV BASEDIR=/data/web/geomet-mapproxy-nightly
 ENV DOCKERDIR=${BASEDIR}/docker \
-    CRONTAB=${BASEDIR}/deploy/nightly/cron.d/geomet-mapproxy \
+    CRONTAB=${BASEDIR}/deploy/nightly/geomet-mapproxy.cron.d \
     GEOMET_MAPPROXY_LOGGING_LOGLEVEL=DEBUG \
     GEOMET_MAPPROXY_LOGGING_LOGFILE=/tmp/geomet-mapproxy-nightly.log \
     GEOMET_MAPPROXY_CACHE_DATA=$BASEDIR/cache_data \
