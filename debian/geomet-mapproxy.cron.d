@@ -1,3 +1,4 @@
+MAILTO=""
 # =================================================================
 #
 # Author: Tom Kralidis <tom.kralidis@ec.gc.ca>
@@ -26,7 +27,6 @@
 # OTHER DEALINGS IN THE SOFTWARE.
 #
 # =================================================================
-
 # every minute, refresh geomet-mapproxy config with GeoMet-Weather cache XML
 * * * * * geoadm geomet-mapproxy config update --mode xml
 # every day at 0300h, clear cache
