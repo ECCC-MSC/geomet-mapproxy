@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/ECCC-MSC/geomet-mapproxy/workflows/build%20%E2%9A%99%EF%B8%8F/badge.svg)](https://github.com/ECCC-MSC/geomet-mapproxy/actions)
+[![Build Status](https://github.com/ECCC-MSC/geomet-mapproxy/workflows/flake8%20%E2%9A%99%EF%B8%8F/badge.svg)](https://github.com/ECCC-MSC/geomet-mapproxy/actions)
 
 # geomet-mapproxy
 
