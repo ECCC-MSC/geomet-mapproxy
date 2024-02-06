@@ -187,7 +187,11 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
         LOGGER.debug('Configuring layer: {}'.format(layer))
         LOGGER.debug('Configuring layer caches')
         caches['{}_cache'.format(layer)] = {
-            'grids': ['GLOBAL_GEODETIC'],
+            'grids': [
+                'GLOBAL_GEODETIC',
+                'GLOBAL_WEBMERCATOR',
+                'CANADA_ATLAS_LAMBERT'
+            ],
             'sources': ['{}_source'.format(layer)]
         }
 
@@ -230,6 +234,12 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
                         '(https://github.com/ECCC-MSC/geomet-mapproxy)'
                     )
                 }
+            },
+        },
+        'grids': {
+            'CANADA_ATLAS_LAMBERT': {
+                'srs': 'EPSG:3978',
+                'bbox': [-7192737.96, -3004297.73, 5183275.29, 4484204.83]
             }
         },
         'services': {
