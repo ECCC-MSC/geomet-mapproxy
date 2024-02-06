@@ -31,7 +31,7 @@
 BASEDIR=/data/web/geomet-mapproxy-nightly
 GEOMET_MAPPROXY_GITREPO=https://github.com/ECCC-MSC/geomet-mapproxy.git
 DAYSTOKEEP=7
-GEOMET_MAPPROXY_URL=https://geomet-dev-21-nightly.cmc.ec.gc.ca/geomet-mapproxy
+GEOMET_MAPPROXY_URL=https://geomet-dev-22-nightly.cmc.ec.gc.ca/geomet-mapproxy
 
 DATETIME=`date +%Y%m%d`
 TIMESTAMP=`date +%Y%m%d.%H%M`
