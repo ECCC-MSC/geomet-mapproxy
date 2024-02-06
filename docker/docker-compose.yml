@@ -5,7 +5,7 @@ services:
     restart: unless-stopped
     build:
         context: ..
-    hostname: geomet-dev-21-docker.cmc.ec.gc.ca
+    hostname: geomet-dev-22-docker.cmc.ec.gc.ca
     volumes:
         - "/tmp:/tmp:rw"
 networks:

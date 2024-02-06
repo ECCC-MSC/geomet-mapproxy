@@ -30,7 +30,7 @@
 
 FROM ubuntu:focal
 
-ARG GEOMET_MAPPROXY_URL=https://geomet-dev-21-nightly.cmc.ec.gc.ca/geomet-mapproxy
+ARG GEOMET_MAPPROXY_URL=https://geomet-dev-22-nightly.cmc.ec.gc.ca/geomet-mapproxy
 
 ENV BASEDIR=/data/web/geomet-mapproxy-nightly
 ENV DOCKERDIR=${BASEDIR}/docker \
@@ -38,7 +38,7 @@ ENV DOCKERDIR=${BASEDIR}/docker \
     GEOMET_MAPPROXY_LOGGING_LOGLEVEL=DEBUG \
     GEOMET_MAPPROXY_LOGGING_LOGFILE=/tmp/geomet-mapproxy-nightly.log \
     GEOMET_MAPPROXY_CACHE_DATA=$BASEDIR/cache_data \
-    GEOMET_MAPPROXY_CACHE_WMS=https://geomet-dev-21-nightly.cmc.ec.gc.ca/geomet \
+    GEOMET_MAPPROXY_CACHE_WMS=https://geomet-dev-22-nightly.cmc.ec.gc.ca/geomet \
     GEOMET_MAPPROXY_CACHE_MAPFILE=/opt/geomet/conf/geomet-en.map \
     GEOMET_MAPPROXY_CACHE_XML=/opt/geomet/conf/geomet-wms-1.3.0-capabilities-en.xml \
     GEOMET_MAPPROXY_URL=$GEOMET_MAPPROXY_URL \
