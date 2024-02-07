@@ -246,7 +246,8 @@ def create_initial_mapproxy_config(mapproxy_cache_config, mode='wms'):
             'demo': None,
             'wms': {
                 'md': {'title': c['wms-server']['name']},
-                'versions': ['1.3.0', '1.1.1']
+                'versions': ['1.3.0', '1.1.1'],
+                'srs': ['EPSG:4326', 'EPSG:3857', 'EPSG:3978']
             }
         }
     }
