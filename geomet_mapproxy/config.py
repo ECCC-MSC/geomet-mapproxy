@@ -282,8 +282,6 @@ def update_mapproxy_config(mapproxy_config, layers=[], mode='wms'):
                     layer['dimensions'] = {}
                 layer['dimensions'][dim] = {
                     'default': layers_to_update[layer_name][dim]['default'],
-                }
-                layer['dimensions'][dim] = {
                     'values': layers_to_update[layer_name][dim]['values']
                 }
 
