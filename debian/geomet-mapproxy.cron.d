@@ -29,5 +29,7 @@ MAILTO=""
 # =================================================================
 # every minute, refresh geomet-mapproxy config with GeoMet-Weather cache XML
 * * * * * geoadm geomet-mapproxy config update --mode xml
+# every minute, remove cache directories of default dimension tiles
+* * * * * geoadm /bin/rm -fr $GEOMET_MAPPROXY_CACHE_DATA/*/??
 # every day at 0300h, clear cache
 0 3 * * * geoadm geomet-mapproxy cache clean --layers=all --force
