@@ -68,6 +68,8 @@ cat > geomet-mapproxy-nightly.conf <<EOF
   ProxyPassReverse http://localhost:5091
   Header set Access-Control-Allow-Origin "*"
   Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  RequestHeader set X-Script-Name "/geomet-mapproxy"
+  RequestHeader set X-Forwarded-Proto https
   Require all granted
 </Location>
 EOF
