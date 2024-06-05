@@ -2,7 +2,7 @@
 #
 # Author: Tom Kralidis <tom.kralidis@ec.gc.ca>
 #
-# Copyright (c) 2023 Tom Kralidis
+# Copyright (c) 2024 Tom Kralidis
 #
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation
@@ -36,7 +36,7 @@ from geomet_mapproxy.env import (
 from geomet_mapproxy.log import setup_logger
 
 
-__version__ = '0.1.2'
+__version__ = '0.2.0'
 
 setup_logger(GEOMET_MAPPROXY_LOGGING_LOGLEVEL, GEOMET_MAPPROXY_LOGGING_LOGFILE)
 

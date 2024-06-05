@@ -1,3 +1,13 @@
+geomet-mapproxy (0.2.0) focal; urgency=medium
+
+  * disable email via cron
+  * add EPSG:3978 and EPSG:3857 grids 
+  * avoid overwriting default time dimension when updating config
+  * remove default dimensions in cache clean cron
+  * packaging fixes
+
+ -- Tom Kralidis <tom.kralidis@ec.gc.ca>  Wed, 05 Jun 2024 15:21:45 +0000
+
 geomet-mapproxy (0.1.2) focal; urgency=medium
 
   * packaging fixes
