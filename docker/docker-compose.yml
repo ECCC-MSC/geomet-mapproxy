@@ -4,10 +4,14 @@ services:
     container_name: geomet-mapproxy-nightly
     restart: unless-stopped
     build:
-        context: ..
+      context: ..
     hostname: geomet-dev-32-docker.edc-mtl.ec.gc.ca
     volumes:
-        - "/tmp:/tmp:rw"
+      - "/tmp:/tmp:rw"
+      # below is required so that the container has certificates required
+      # for SSL-enabled connections to internal hosts (geomet-dev-xx.edc-mtl.ec.gc.ca)
+      - "/etc/ssl/certs:/etc/ssl/certs:ro" # mount host ssl certs
+      - "/usr/local/share/ca-certificates/:/usr/local/share/ca-certificates/:ro" # mount host ca-certificates
 networks:
   default:
     name: geomet_default
