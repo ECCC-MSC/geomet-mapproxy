@@ -38,6 +38,8 @@ CONTAINER_HOST=${CONTAINER_HOST:=0.0.0.0}
 CONTAINER_PORT=${CONTAINER_PORT:=80}
 WSGI_WORKERS=${WSGI_WORKERS:=2}
 WSGI_WORKER_TIMEOUT=${WSGI_WORKER_TIMEOUT:=900}
+GEOMET_MAPPROXY_CONFIG=${GEOMET_MAPPROXY_CONFIG}
+REQUESTS_CA_BUNDLE=${REQUESTS_CA_BUNDLE}
 
 # create default cache directory
 echo "Creating default cache directory for geomet-mapproxy"
@@ -47,20 +49,29 @@ geomet-mapproxy cache create
 echo "Creating initial config for geomet-mapproxy"
 geomet-mapproxy config create
 
+# Stop if config was not created
+if [ ! -f "$GEOMET_MAPPROXY_CONFIG" ]; then
+    echo "ERROR: Config file was not created. Exiting."
+    exit 1
+fi
+
 # pass in GEOMET_MAPPROXY env variables to /etc/environment so they are available to cron
 env | grep ^GEOMET_MAPPROXY >> /etc/environment
+printenv | grep 'REQUESTS_CA_BUNDLE' >> /etc/environment
 # startup cron jobs (builds mapfile at schedule cron settings)
 service cron start
 
 # startup geomet-mapproxy on gunicorn
 echo "Starting gunicorn for name=${CONTAINER_NAME} on ${CONTAINER_HOST}:${CONTAINER_PORT} with ${WSGI_WORKERS} workers. Access logs output to ${GUNICORN_GEOMET_MAPPROXY_ACCESSLOG} and error logs to ${GUNICORN_GEOMET_MAPPROXY_ERRORLOG}"
-gunicorn --workers ${WSGI_WORKERS} \
+gunicorn \
+    --workers ${WSGI_WORKERS} \
     --name=${CONTAINER_NAME} \
     --bind ${CONTAINER_HOST}:${CONTAINER_PORT} \
-    --chdir $BASEDIR/geomet_mapproxy wsgi:application \
+    --chdir $BASEDIR/geomet_mapproxy \
     --reload \
     --timeout ${WSGI_WORKER_TIMEOUT} \
     --access-logfile $GUNICORN_GEOMET_MAPPROXY_ACCESSLOG \
-    --error-logfile $GUNICORN_GEOMET_MAPPROXY_ERRORLOG
+    --error-logfile $GUNICORN_GEOMET_MAPPROXY_ERRORLOG \
+    wsgi:application   # should always be the last argument
 
 echo "END /entrypoint.sh"

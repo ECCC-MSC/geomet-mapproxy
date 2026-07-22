@@ -28,7 +28,7 @@
 # =================================================================
 
 
-FROM ubuntu:focal
+FROM ubuntu:jammy
 
 ARG GEOMET_MAPPROXY_URL=https://geomet-dev-32-nightly.edc-mtl.ec.gc.ca/geomet-mapproxy
 
@@ -48,10 +48,13 @@ ENV DOCKERDIR=${BASEDIR}/docker \
     GUNICORN_GEOMET_MAPPROXY_ACCESSLOG=/tmp/gunicorn-geomet-mapproxy-nightly-access.log \
     GUNICORN_GEOMET_MAPPROXY_ERRORLOG=/tmp/gunicorn-geomet-mapproxy-nightly-errors.log
 
+# ignore debian install prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
 # install system dependencies
 RUN sed -i 's#http://archive.ubuntu.com/ubuntu/#mirror://mirrors.ubuntu.com/mirrors.txt#g' /etc/apt/sources.list
 RUN apt-get update && apt-get install -y software-properties-common && \
-    add-apt-repository ppa:gcpp-kalxas/wmo && add-apt-repository ppa:ubuntugis/ubuntugis-unstable && apt update && \
+    add-apt-repository -y ppa:gcpp-kalxas/wmo && add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable && apt update && \
     apt-get install -y python3 python3-pip python3-pil python3-yaml python3-pyproj && \
     # ## other misc dependencies
     apt install -y git cron make && \
@@ -66,7 +69,7 @@ RUN pip3 install -r requirements.txt && \
     # add gunicorn for Docker deploy
     pip3 install gunicorn && \
     # install geomet-mapproxy
-    pip install . && \
+    pip3 install . && \
     # Set up cache data directory
     mkdir -p $GEOMET_MAPPROXY_CACHE_DATA && \
     # Amend permissions to crontab and use crontab command to make file known to the cron daemon

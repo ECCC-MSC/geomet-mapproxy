@@ -5,6 +5,8 @@ services:
     restart: unless-stopped
     build:
       context: ..
+    environment:
+      REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
     hostname: geomet-dev-32-docker.edc-mtl.ec.gc.ca
     volumes:
       - "/tmp:/tmp:rw"
